@@ -28,20 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.GameCanvas = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.GameCanvas)).BeginInit();
             this.SuspendLayout();
+            // 
+            // GameCanvas
+            // 
+            this.GameCanvas.Location = new System.Drawing.Point(12, 12);
+            this.GameCanvas.Name = "GameCanvas";
+            this.GameCanvas.Size = new System.Drawing.Size(431, 426);
+            this.GameCanvas.TabIndex = 0;
+            this.GameCanvas.TabStop = false;
+            this.GameCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.GameCanvas_Paint);
+            this.GameCanvas.MouseClick += new System.Windows.Forms.MouseEventHandler(this.GameCanvas_MouseClick);
             // 
             // GameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(599, 450);
+            this.Controls.Add(this.GameCanvas);
             this.Name = "GameForm";
             this.Text = "Ultimate Tic-Tac-Toe";
+            ((System.ComponentModel.ISupportInitialize)(this.GameCanvas)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.PictureBox GameCanvas;
     }
 }
 
