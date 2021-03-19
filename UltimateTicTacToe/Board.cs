@@ -6,29 +6,49 @@ using System.Threading.Tasks;
 
 namespace UltimateTicTacToe
 {
-    enum Players
+    public enum Players
     {
         None = 0,
         First = 1,
         Second = 2,
     }
-    enum CellTypes // TODO: Mb Merge with Players
+    public enum CellTypes // TODO: Mb Merge with Players
     {
         Empty = 0,
         First = 1,
         Second = 2,
     }
-    enum GameResults // TODO: WinLine
+    public enum GameResults // TODO: WinLine
     {
         None = 0,
         FirstWin = 1,
         SecondWin = 2,
         Draw = 3,
     }
-    struct ActiveBoard
+    public struct ActiveBoard
     {
         public int x, y;
         public bool all;
+    }
+    public struct PlayerMove : IComparable<PlayerMove>
+    {
+        public int x, y;
+        public PlayerMove(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        public PlayerMove Add(int dx, int dy)
+        {
+            return new PlayerMove(x + dx, y + dy);
+        }
+
+        public int CompareTo(PlayerMove other)
+        {
+            if (x == other.x)
+                return y.CompareTo(other.y);
+            return x.CompareTo(other.x);
+        }
     }
     //interface ICell
     //{
@@ -38,11 +58,21 @@ namespace UltimateTicTacToe
     //{
     //    public Players Owner { get; set; }
     //}
-    abstract class AbstractBoard // TODO: Rename
+    public abstract class AbstractBoard // TODO: Rename
     {
         public const int LocalBoardSize = 3;
         public GameResults Winner { get; set; }
         public abstract CellTypes this[int x, int y] { get; set; }
+        public abstract bool MakeMove(Players player, int x, int y);
+        public virtual PlayerMove[] GetAllMoves()
+        {
+            List<PlayerMove> result = new List<PlayerMove>();
+            for (int i = 0; i < LocalBoardSize; i++)
+                for (int j = 0; j < LocalBoardSize; j++)
+                    if (this[i, j] == CellTypes.Empty)
+                        result.Add(new PlayerMove(i, j));
+            return result.ToArray();
+        }
         protected GameResults GetResult() // TODO: Rename
         {
             if (Winner != GameResults.None)
@@ -89,11 +119,11 @@ namespace UltimateTicTacToe
             return GameResults.Draw;
         }
     }
-    class MiniBoard : AbstractBoard // TODO: Rename
+    public class MiniBoard : AbstractBoard // TODO: Rename
     {
         private readonly CellTypes[,] board = new CellTypes[LocalBoardSize, LocalBoardSize];
         public override CellTypes this[int x, int y] { get => board[x, y]; set => board[x, y] = value; }
-        public bool MakeMove(Players player, int x, int y)
+        public override bool MakeMove(Players player, int x, int y)
         {
             if (Winner != GameResults.None || board[x, y] != CellTypes.Empty)
                 return false;
@@ -103,7 +133,7 @@ namespace UltimateTicTacToe
         }
 
     }
-    class Board : AbstractBoard
+    public class Board : AbstractBoard
     {
         public const int BoardSize = LocalBoardCount * LocalBoardSize;
         public const int LocalBoardCount = LocalBoardSize;
@@ -121,8 +151,10 @@ namespace UltimateTicTacToe
                     boards[i, j] = new MiniBoard();
         }
         public ActiveBoard ActiveBoard { get; private set; } = new ActiveBoard { all = true };
-        public bool MakeMove(Players player, int x, int y)
+        public override bool MakeMove(Players player, int x, int y)
         {
+            if (Winner != GameResults.None)
+                return false;
             if (player != PlayerMove)
                 return false;
             // Move in right board
@@ -145,7 +177,20 @@ namespace UltimateTicTacToe
             //    y = y,
             //};
             PlayerMove = (Players)(3 - (int)PlayerMove);
+            Winner = GetResult();
             return true;
+        }
+
+        public override PlayerMove[] GetAllMoves() // TODO: Yield?
+        {
+            List<PlayerMove> result = new List<PlayerMove>();
+            if (ActiveBoard.all)
+                for (int i = 0; i < LocalBoardCount; i++)
+                    for (int j = 0; j < LocalBoardCount; j++)
+                        result.AddRange(Array.ConvertAll(boards[i, j].GetAllMoves(), p => p.Add(i * LocalBoardSize, j * LocalBoardSize)));
+            else
+                result.AddRange(Array.ConvertAll(boards[ActiveBoard.x, ActiveBoard.y].GetAllMoves(), p => p.Add(ActiveBoard.x * LocalBoardSize, ActiveBoard.y * LocalBoardSize)));
+            return result.ToArray();
         }
         [Obsolete("Debug Only")]
         public void DebugPrint()
@@ -163,6 +208,29 @@ namespace UltimateTicTacToe
         //}
         public StrategyAction LastAction { get; private set; } = new StrategyAction(Actions.None);
         public Players PlayerMove { get; private set; } = Players.First;
-        public bool IsFinished { get; private set; } = false;
+        public bool IsFinished => Winner != GameResults.None;
+    }
+
+    class PlayerBoard // TODO: !!!Dependence, Rename Proxy?
+    {
+        public const int LocalBoardSize = 3;
+        public const int BoardSize = LocalBoardCount * LocalBoardSize;
+        public const int LocalBoardCount = LocalBoardSize;
+
+        readonly Board board;
+
+        public Players Player { get; }
+        public PlayerBoard(Board board, Players player)
+        {
+            this.board = board;
+            Player = player;
+        }
+        public CellTypes this[int x, int y] => board.boards[x / LocalBoardSize, y / LocalBoardSize][x % LocalBoardSize, y % LocalBoardSize];
+        public bool MakeMove(int x, int y) => board.MakeMove(Player, x, y);
+        public ActiveBoard ActiveBoard => board.ActiveBoard;
+        public PlayerMove[] GetAllMoves() => board.GetAllMoves();
+        public StrategyAction LastAction => board.LastAction;
+        public Players PlayerMove => board.PlayerMove;
+        public bool IsFinished => board.IsFinished;
     }
 }

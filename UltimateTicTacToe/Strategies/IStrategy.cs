@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UltimateTicTacToe
 {
-    enum Actions
+    public enum Actions
     {
         None,
         Move,
@@ -14,7 +14,7 @@ namespace UltimateTicTacToe
         OfferDraw,
         Surrender,
     }
-    struct StrategyAction
+    public struct StrategyAction
     {
         public Actions action;
         //public Players player;
@@ -33,7 +33,7 @@ namespace UltimateTicTacToe
     }
     interface IStrategy
     {
-        void Init();
-        StrategyAction MakeTurn();
+        void Init(PlayerBoard board);
+        void MakeTurn();
     }
 }

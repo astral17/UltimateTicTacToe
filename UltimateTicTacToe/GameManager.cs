@@ -20,8 +20,8 @@ namespace UltimateTicTacToe
             Board = new Board();
             return Task.Run(() =>
             {
-                firstPlayer.Init();
-                secondPlayer.Init();
+                firstPlayer.Init(new PlayerBoard(Board, Players.First));
+                secondPlayer.Init(new PlayerBoard(Board, Players.Second));
                 IStrategy currentStrategy = firstPlayer, otherStrategy = secondPlayer, tmp;
                 while (!Board.IsFinished)
                 {

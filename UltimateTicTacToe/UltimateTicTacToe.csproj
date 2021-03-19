@@ -55,7 +55,9 @@
     <Compile Include="GameManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Strategies\HumanStrategy.cs" />
     <Compile Include="Strategies\IStrategy.cs" />
+    <Compile Include="Strategies\RandomStrategy.cs" />
     <EmbeddedResource Include="GameForm.resx">
       <DependentUpon>GameForm.cs</DependentUpon>
     </EmbeddedResource>
