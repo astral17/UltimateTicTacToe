@@ -8,7 +8,7 @@ namespace UltimateTicTacToe.Strategies
 {
     class HumanStrategy : IStrategy
     {
-        public void Init(PlayerBoard board)
+        public void Init(BoardProxy board)
         {
             throw new NotImplementedException();
         }

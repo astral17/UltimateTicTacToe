@@ -9,28 +9,27 @@ namespace UltimateTicTacToe.Tests
 {
     static class Utils
     {
-        public static bool CompareBoardWithArray(Board board, CellTypes[,] cells)
+        public static bool CompareBoardWithArray(UltimateTicTacToe board, CellOwners[,] cells)
         {
-            for (int i = 0; i < Board.BoardSize; i++)
-                for (int j = 0; j < Board.BoardSize; j++)
-                    if (board.boards[i / Board.LocalBoardSize, j / Board.LocalBoardSize]
-                                    [i % Board.LocalBoardSize, j % Board.LocalBoardSize] != cells[i, j])
-                        return false;
-            return true;
-        }
-        public static bool CompareMiniBoardWithArray(MiniBoard board, CellTypes[,] cells)
-        {
-            for (int i = 0; i < MiniBoard.LocalBoardSize; i++)
-                for (int j = 0; j < MiniBoard.LocalBoardSize; j++)
+            for (int i = 0; i < UltimateTicTacToe.BoardSize; i++)
+                for (int j = 0; j < UltimateTicTacToe.BoardSize; j++)
                     if (board[i, j] != cells[i, j])
                         return false;
             return true;
         }
-        public static bool CompareWinnersWithArray(Board board, GameResults[,] cells)
+        public static bool CompareMiniBoardWithArray(TicTacToe board, CellOwners[,] cells)
         {
-            for (int i = 0; i < Board.LocalBoardCount; i++)
-                for (int j = 0; j < Board.LocalBoardCount; j++)
-                    if (board.boards[i, j].Winner != cells[i, j])
+            for (int i = 0; i < TicTacToe.LocalBoardSize; i++)
+                for (int j = 0; j < TicTacToe.LocalBoardSize; j++)
+                    if (board[i, j] != cells[i, j])
+                        return false;
+            return true;
+        }
+        public static bool CompareWinnersWithArray(UltimateTicTacToe board, GameResults[,] cells)
+        {
+            for (int i = 0; i < UltimateTicTacToe.LocalBoardCount; i++)
+                for (int j = 0; j < UltimateTicTacToe.LocalBoardCount; j++)
+                    if ((int)board.GetOwner(i, j) != (int)cells[i, j]) // TODO: Draw fix
                         return false;
             return true;
         }
@@ -45,7 +44,7 @@ namespace UltimateTicTacToe.Tests
             return true;
         }
 
-        public static Players MakeMoves(AbstractBoard board, PlayerMove[] moves, Players player)
+        public static Players MakeMoves(Board board, PlayerMove[] moves, Players player)
         {
             foreach (var move in moves)
             {

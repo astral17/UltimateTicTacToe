@@ -33,7 +33,7 @@ namespace UltimateTicTacToe
     }
     interface IStrategy
     {
-        void Init(PlayerBoard board);
+        void Init(BoardProxy board);
         void MakeTurn();
     }
 }

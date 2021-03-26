@@ -9,23 +9,19 @@ namespace UltimateTicTacToe
 {
     class GameManager
     {
-        //public IStrategy FirstStrategy { get; private set; } = null;
-        //public IStrategy SecondStrategy { get; private set; } = null;
-        public Board Board { get; private set; } = null; // TODO: Thread Safe Access
+        public UltimateTicTacToe Board { get; private set; } = null; // TODO: Thread Safe Access
         
         public Task StartGame(IStrategy firstPlayer, IStrategy secondPlayer/*, CancellationToken token*/)
         {
-            //FirstStrategy = firstPlayer;
-            //SecondStrategy = secondPlayer;
-            Board = new Board();
+            Board = new UltimateTicTacToe();
             return Task.Run(() =>
             {
-                firstPlayer.Init(new PlayerBoard(Board, Players.First));
-                secondPlayer.Init(new PlayerBoard(Board, Players.Second));
+                firstPlayer.Init(new BoardProxy(Board, Players.First));
+                secondPlayer.Init(new BoardProxy(Board, Players.Second));
                 IStrategy currentStrategy = firstPlayer, otherStrategy = secondPlayer, tmp;
                 while (!Board.IsFinished)
                 {
-                    currentStrategy.MakeTurn();
+                    currentStrategy.MakeTurn(); // TODO: Check is moved
                     tmp = currentStrategy;
                     currentStrategy = otherStrategy;
                     otherStrategy = tmp;
