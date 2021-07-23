@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace UltimateTicTacToe
 {
-    class GameManager
+    public class GameManager
     {
         public UltimateTicTacToe Board { get; private set; } = null; // TODO: Thread Safe Access
         

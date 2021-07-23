@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace UltimateTicTacToe.Strategies
 {
-    class MiniMaxStrategy : IStrategy
+    public class MiniMaxStrategy : IStrategy // Only for tests? AlphaBeta is MiniMax, but faster
     {
-        private struct StrategyMove
+        protected struct StrategyMove
         {
             public int x, y, score;
             public StrategyMove(int score)
             {
                 this.score = score;
-                x = y = 0;
+                x = y = -1;
             }
         }
 
-        readonly int maxDepth;
-        BoardProxy board;
+        protected readonly int maxDepth;
+        protected BoardProxy board;
         public MiniMaxStrategy(int maxDepth = 5)
         {
             this.maxDepth = maxDepth;
@@ -28,37 +28,37 @@ namespace UltimateTicTacToe.Strategies
         {
             this.board = board;
         }
-        private int GetScore(Board board) // TODO: Extract heuristics
+        protected int GetScore(Board board) // TODO: Extract heuristics
         {
-            if ((int)board.Winner == (int)board.PlayerMove)
+            if (board.Winner == board.PlayerMove.ToGameResults())
                 return 100;
-            if ((int)board.Winner == 3 - (int)board.PlayerMove)
+            if (board.Winner == board.PlayerMove.GetOpponent().ToGameResults())
                 return -100;
             int score = 0;
             for (int i = 0; i < Board.LocalBoardSize; i++)
                 for (int j = 0; j < Board.LocalBoardSize; j++)
-                    score += (int)board.GetOwner(i, j) == (int)board.PlayerMove ? 1 : (int)board.GetOwner(i, j) == 3 - (int)board.PlayerMove ? -1 : 0;
+                    score += board.GetOwner(i, j) == board.PlayerMove ? 1 : board.GetOwner(i, j) == board.PlayerMove.GetOpponent() ? -1 : 0;
             return score;
         }
-        private StrategyMove MiniMax(Board board, int depth)
+        private StrategyMove MiniMax(Board board, int depth) // NegaMax
         {
-            if (board.IsFinished || depth == 0)
+            if (depth == 0 || board.IsFinished)
                 return new StrategyMove(GetScore(board));
             PlayerMove[] moves = board.GetAllMoves();
-            StrategyMove bestMove = new StrategyMove(int.MaxValue);
+            StrategyMove bestMove = new StrategyMove(-int.MaxValue), curMove;
             foreach (PlayerMove move in moves)
             {
                 Board curBoard = (Board)board.Clone(); // TODO: Undo moves
-                curBoard.MakeMove(move.x, move.y);
-                StrategyMove curMove = MiniMax(curBoard, depth - 1);
+                curBoard.MakeMove(move.x, move.y); // TODO: Check is moved
                 curMove.x = move.x;
                 curMove.y = move.y;
-                if (curMove.score < bestMove.score)
+                curMove.score = -MiniMax(curBoard, depth - 1).score;
+                if (bestMove.score < curMove.score)
                     bestMove = curMove;
             }
             return bestMove;
         }
-        public void MakeTurn()
+        public virtual void MakeTurn()
         {
             StrategyMove move = MiniMax(board.GetBoardCopy(), maxDepth);
             board.MakeMove(move.x, move.y);

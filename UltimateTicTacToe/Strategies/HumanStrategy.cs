@@ -8,6 +8,7 @@ namespace UltimateTicTacToe.Strategies
 {
     class HumanStrategy : IStrategy
     {
+        BoardProxy board;
         public void Init(BoardProxy board)
         {
             throw new NotImplementedException();
@@ -15,7 +16,6 @@ namespace UltimateTicTacToe.Strategies
 
         public void MakeTurn()
         {
-            //return new StrategyAction();
             throw new NotImplementedException();
         }
     }

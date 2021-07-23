@@ -31,7 +31,7 @@ namespace UltimateTicTacToe
             this.y = y;
         }
     }
-    interface IStrategy
+    public interface IStrategy
     {
         void Init(BoardProxy board);
         void MakeTurn();
