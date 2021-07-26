@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace UltimateTicTacToe
 {
-    public enum Players
+    public enum Players // TODO: Rename
     {
         None = 0,
         First = 1,
         Second = 2,
+        Draw = 3,
     }
     public static class PlayersExtensions
     {
@@ -18,17 +19,6 @@ namespace UltimateTicTacToe
         {
             return (Players)(3 - (int)player);
         }
-        public static GameResults ToGameResults(this Players player)
-        {
-            return (GameResults)(int)player;
-        }
-    }
-    public enum GameResults // TODO: WinLine
-    {
-        None = 0,
-        FirstWin = 1,
-        SecondWin = 2,
-        Draw = 3,
     }
     public struct ActiveBoard
     {
@@ -58,15 +48,15 @@ namespace UltimateTicTacToe
     public abstract class Board : ICloneable
     {
         public const int LocalBoardSize = 3;
-        public GameResults Winner { get; protected set; }
+        public Players Winner { get; protected set; }
         public abstract Players this[int x, int y] { get; protected set; }
-        public abstract Players GetOwner(int x, int y);
+        public abstract Players GetOwner(int x, int y); // TODO: Rename
         public abstract bool MakeMove(Players player, int x, int y);
         public virtual bool MakeMove(int x, int y) => MakeMove(PlayerMove, x, y);
         public abstract PlayerMove[] GetAllMoves();
-        protected GameResults GetResult() // TODO: Rename
+        protected Players GetResult() // TODO: Rename
         {
-            if (Winner != GameResults.None)
+            if (Winner != Players.None) // TODO: Remake cache
                 return Winner;
             Players result;
             // Vertical
@@ -77,7 +67,7 @@ namespace UltimateTicTacToe
                     if (GetOwner(i, j) != result)
                         result = Players.None;
                 if (result != Players.None)
-                    return result.ToGameResults();
+                    return result;
             }
             // Horizontal
             for (int j = 0; j < LocalBoardSize; j++)
@@ -87,7 +77,7 @@ namespace UltimateTicTacToe
                     if (GetOwner(i, j) != result)
                         result = Players.None;
                 if (result != Players.None)
-                    return result.ToGameResults();
+                    return result;
             }
             // Main Diagonal
             result = GetOwner(0, 0);
@@ -95,28 +85,28 @@ namespace UltimateTicTacToe
                 if (GetOwner(i, i) != result)
                     result = Players.None;
             if (result != Players.None)
-                return result.ToGameResults();
+                return result;
             // Side Diagonal
             result = GetOwner(LocalBoardSize - 1, 0);
             for (int i = 1; i < LocalBoardSize; i++)
                 if (GetOwner(LocalBoardSize - 1 - i, i) != result)
                     result = Players.None;
             if (result != Players.None)
-                return result.ToGameResults();
+                return result;
             // Draw Check
             for (int j = 0; j < LocalBoardSize; j++)
                 for (int i = 0; i < LocalBoardSize; i++)
                     if (GetOwner(i, j) == Players.None)
-                        return GameResults.None;
-            return GameResults.Draw;
+                        return Players.None;
+            return Players.Draw;
         }
 
         public abstract object Clone();
 
         public Players PlayerMove { get; protected set; } = Players.First; // Move to UltimateTicTacToe
-        public bool IsFinished => Winner != GameResults.None;
+        public bool IsFinished => Winner != Players.None;
     }
-    public class TicTacToe : Board
+    class TicTacToe : Board
     {
         private Players[,] board = new Players[LocalBoardSize, LocalBoardSize];
         public override Players this[int x, int y]
@@ -137,7 +127,7 @@ namespace UltimateTicTacToe
         }
         public override bool MakeMove(Players player, int x, int y)
         {
-            if (Winner != GameResults.None || board[x, y] != Players.None)
+            if (Winner != Players.None || board[x, y] != Players.None)
                 return false;
             board[x, y] = player;
             Winner = GetResult();
@@ -162,7 +152,7 @@ namespace UltimateTicTacToe
             get => boards[x / LocalBoardSize, y / LocalBoardSize][x % LocalBoardSize, y % LocalBoardSize];
             protected set => throw new NotImplementedException();
         }
-        public override Players GetOwner(int x, int y) => (Players)((int)boards[x, y].Winner % 3); // TODO: Winner == Draw
+        public override Players GetOwner(int x, int y) => boards[x, y].Winner;
         public UltimateTicTacToe()
         {
             for (int i = 0; i < LocalBoardCount; i++)
@@ -172,7 +162,7 @@ namespace UltimateTicTacToe
         public ActiveBoard ActiveBoard { get; private set; } = new ActiveBoard { all = true };
         public override bool MakeMove(Players player, int x, int y)
         {
-            if (Winner != GameResults.None)
+            if (Winner != Players.None)
                 return false;
             if (player != PlayerMove)
                 return false;
@@ -187,7 +177,7 @@ namespace UltimateTicTacToe
             {
                 x = x % LocalBoardSize,
                 y = y % LocalBoardSize,
-                all = boards[x % LocalBoardSize, y % LocalBoardSize].Winner != GameResults.None // TODO: Rule Set
+                all = boards[x % LocalBoardSize, y % LocalBoardSize].Winner != Players.None // TODO: Rule Set
             };
             LastAction = new StrategyAction(x, y);
             PlayerMove = PlayerMove.GetOpponent();
@@ -213,9 +203,22 @@ namespace UltimateTicTacToe
             for (int i = 0; i < BoardSize; i++)
             {
                 for (int j = 0; j < BoardSize; j++)
-                    Console.Write($"{(int)this[i, j]:2}");
+                    Console.Write($"{(int)this[i, j], 2}");
                 Console.WriteLine();
             }
+        }
+
+        [Obsolete("Debug Only")]
+        public string DebugToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < BoardSize; i++)
+            {
+                for (int j = 0; j < BoardSize; j++)
+                    builder.AppendFormat("{0, 2}", (int)this[i, j]);
+                builder.Append('\n');
+            }
+            return builder.ToString();
         }
 
         public override object Clone()

@@ -25,11 +25,11 @@ namespace UltimateTicTacToe.Tests
                         return false;
             return true;
         }
-        public static bool CompareWinnersWithArray(UltimateTicTacToe board, GameResults[,] cells)
+        public static bool CompareWinnersWithArray(UltimateTicTacToe board, Players[,] cells)
         {
             for (int i = 0; i < UltimateTicTacToe.LocalBoardCount; i++)
                 for (int j = 0; j < UltimateTicTacToe.LocalBoardCount; j++)
-                    if (board.GetOwner(i, j).ToGameResults() != cells[i, j]) // TODO: Draw fix
+                    if (board.GetOwner(i, j) != cells[i, j]) // TODO: Draw fix
                         return false;
             return true;
         }

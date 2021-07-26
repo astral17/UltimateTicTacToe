@@ -10,9 +10,12 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("UltimateTicTacToe")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("Copyright © astral17 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
+// Для возможности тестирования внутренних классов и методов
+[assembly: InternalsVisibleTo("UltimateTicTacToe.Tests")]
 
 // Установка значения False для параметра ComVisible делает типы в этой сборке невидимыми
 // для компонентов COM. Если необходимо обратиться к типу в этой сборке через

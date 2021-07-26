@@ -31,7 +31,7 @@ namespace UltimateTicTacToe
             this.y = y;
         }
     }
-    public interface IStrategy
+    public interface IStrategy // Mb make event based in separate thread?
     {
         void Init(BoardProxy board);
         void MakeTurn();

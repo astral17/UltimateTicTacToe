@@ -13,12 +13,12 @@ namespace UltimateTicTacToe.Tests
             UltimateTicTacToe board = new UltimateTicTacToe();
             Players[,] cells = new Players[UltimateTicTacToe.BoardSize, UltimateTicTacToe.BoardSize];
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Empty default values");
-            GameResults[,] winners = new GameResults[UltimateTicTacToe.LocalBoardCount, UltimateTicTacToe.LocalBoardCount];
+            Players[,] winners = new Players[UltimateTicTacToe.LocalBoardCount, UltimateTicTacToe.LocalBoardCount];
             Assert.IsTrue(Utils.CompareWinnersWithArray(board, winners), "None local winners");
 
             Assert.AreEqual(board.ActiveBoard, new ActiveBoard { all = true, x = 0, y = 0 });
             Assert.AreEqual(board.IsFinished, false, "Game couldn't start finished");
-            Assert.AreEqual(board.Winner, GameResults.None, "Game couldn't start with winner");
+            Assert.AreEqual(board.Winner, Players.None, "Game couldn't start with winner");
             Assert.AreEqual(board.PlayerMove, Players.First, "Game must start with first player");
         }
         [TestMethod]
@@ -30,16 +30,16 @@ namespace UltimateTicTacToe.Tests
             Assert.IsTrue(board.MakeMove(Players.First, 0, 0), "Move should be valid");
             cells[0, 0] = Players.First;
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell should be updated");
-            Assert.AreEqual(GameResults.None, board.Winner, "Game shouldn't be finished yet");
+            Assert.AreEqual(Players.None, board.Winner, "Game shouldn't be finished yet");
 
             Assert.IsFalse(board.MakeMove(Players.First, 2, 2), "Move shouldn't be valid");
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell shouldn't be updated");
-            Assert.AreEqual(GameResults.None, board.Winner, "Game shouldn't be finished yet");
+            Assert.AreEqual(Players.None, board.Winner, "Game shouldn't be finished yet");
 
             Assert.IsTrue(board.MakeMove(Players.Second, 1, 1), "Move should be valid");
             cells[1, 1] = Players.Second;
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell should be updated");
-            Assert.AreEqual(GameResults.None, board.Winner, "Game shouldn't be finished yet");
+            Assert.AreEqual(Players.None, board.Winner, "Game shouldn't be finished yet");
         }
         [TestMethod]
         public void BoardAllMoves1()
@@ -83,12 +83,9 @@ namespace UltimateTicTacToe.Tests
             Assert.AreEqual(Players.None, board.GetOwner(0, 0), "None winners at board 0, 0");
             Utils.MakeMoves(board, new PlayerMove[]
             {
-                new PlayerMove(0, 0),
-                new PlayerMove(1, 1),
-                new PlayerMove(4, 4),
-                new PlayerMove(3, 3),
-                new PlayerMove(0, 1),
-                new PlayerMove(0, 3),
+                new PlayerMove(0, 0), new PlayerMove(1, 1),
+                new PlayerMove(4, 4), new PlayerMove(3, 3),
+                new PlayerMove(0, 1), new PlayerMove(0, 3),
                 new PlayerMove(0, 2),
             }, Players.First);
             Assert.AreEqual(Players.First, board.GetOwner(0, 0), "First player win at board 0, 0");
@@ -164,26 +161,18 @@ namespace UltimateTicTacToe.Tests
             Assert.AreEqual(Players.None, board.GetOwner(0, 0), "None winners at board 0, 0");
             Utils.MakeMoves(board, new PlayerMove[]
             {
-                new PlayerMove(0, 0),
-                new PlayerMove(1, 1),
-                new PlayerMove(3, 3),
-                new PlayerMove(0, 1),
-                new PlayerMove(0, 3),
-                new PlayerMove(0, 2),
-                new PlayerMove(0, 6),
-                new PlayerMove(1, 0),
-                new PlayerMove(3, 0),
-                new PlayerMove(2, 2),
-                new PlayerMove(8, 7),
-                new PlayerMove(6, 3),
-                new PlayerMove(2, 0),
-                new PlayerMove(6, 0),
-                new PlayerMove(1, 2),
-                new PlayerMove(3, 6),
+                new PlayerMove(0, 0), new PlayerMove(1, 1),
+                new PlayerMove(3, 3), new PlayerMove(0, 1),
+                new PlayerMove(0, 3), new PlayerMove(0, 2),
+                new PlayerMove(0, 6), new PlayerMove(1, 0),
+                new PlayerMove(3, 0), new PlayerMove(2, 2),
+                new PlayerMove(8, 7), new PlayerMove(6, 3),
+                new PlayerMove(2, 0), new PlayerMove(6, 0),
+                new PlayerMove(1, 2), new PlayerMove(3, 6),
             }, Players.First);
             Assert.AreEqual(Players.None, board.GetOwner(0, 0), "None winners at board 0, 0");
             Assert.IsTrue(board.MakeMove(Players.First, 2, 1), "Last free cell at board 0, 0");
-            Assert.AreEqual(Players.None, board.GetOwner(0, 0), "Draw at board 0, 0");
+            Assert.AreEqual(Players.Draw, board.GetOwner(0, 0), "Draw at board 0, 0");
         }
         [TestMethod]
         public void BoardWin1()
@@ -191,29 +180,21 @@ namespace UltimateTicTacToe.Tests
             UltimateTicTacToe board = new UltimateTicTacToe();
             Utils.MakeMoves(board, new PlayerMove[]
             {
-                new PlayerMove(1, 1),
-                new PlayerMove(3, 3),
-                new PlayerMove(2, 2),
-                new PlayerMove(6, 6),
-                new PlayerMove(0, 0),
-                new PlayerMove(4, 3),
-                new PlayerMove(3, 2),
-                new PlayerMove(1, 6),
-                new PlayerMove(4, 2),
-                new PlayerMove(4, 6),
-                new PlayerMove(5, 2),
-                new PlayerMove(8, 6),
-                new PlayerMove(6, 1),
-                new PlayerMove(2, 3),
-                new PlayerMove(7, 1),
-                new PlayerMove(5, 3),
+                new PlayerMove(1, 1), new PlayerMove(3, 3),
+                new PlayerMove(2, 2), new PlayerMove(6, 6),
+                new PlayerMove(0, 0), new PlayerMove(4, 3),
+                new PlayerMove(3, 2), new PlayerMove(1, 6),
+                new PlayerMove(4, 2), new PlayerMove(4, 6),
+                new PlayerMove(5, 2), new PlayerMove(8, 6),
+                new PlayerMove(6, 1), new PlayerMove(2, 3),
+                new PlayerMove(7, 1), new PlayerMove(5, 3),
                 new PlayerMove(8, 1),
             }, Players.First);
             Assert.AreEqual(Players.First, board.GetOwner(0, 0), "First win at board 0, 0");
             Assert.AreEqual(Players.First, board.GetOwner(1, 0), "First win at board 1, 0");
             Assert.AreEqual(Players.First, board.GetOwner(2, 0), "First win at board 2, 0");
             Assert.AreEqual(Players.Second, board.GetOwner(1, 1), "Second win at board 1, 1");
-            Assert.AreEqual(GameResults.FirstWin, board.Winner, "First player win");
+            Assert.AreEqual(Players.First, board.Winner, "First player win");
 
             Assert.IsFalse(board.MakeMove(Players.Second, 7, 4), "Game already finished");
             Assert.AreEqual(0, board.GetAllMoves().Length, "Game already finished");
@@ -225,34 +206,36 @@ namespace UltimateTicTacToe.Tests
             UltimateTicTacToe board = new UltimateTicTacToe();
             Utils.MakeMoves(board, new PlayerMove[]
             {
-                new PlayerMove(6, 3),
-                new PlayerMove(1, 1),
-                new PlayerMove(3, 3),
-                new PlayerMove(2, 2),
-                new PlayerMove(6, 6),
-                new PlayerMove(0, 0),
-                new PlayerMove(4, 3),
-                new PlayerMove(3, 2),
-                new PlayerMove(1, 6),
-                new PlayerMove(4, 2),
-                new PlayerMove(4, 6),
-                new PlayerMove(5, 2),
-                new PlayerMove(8, 6),
-                new PlayerMove(6, 1),
-                new PlayerMove(2, 3),
-                new PlayerMove(7, 1),
-                new PlayerMove(5, 3),
-                new PlayerMove(8, 1),
+                new PlayerMove(6, 3), new PlayerMove(1, 1),
+                new PlayerMove(3, 3), new PlayerMove(2, 2),
+                new PlayerMove(6, 6), new PlayerMove(0, 0),
+                new PlayerMove(4, 3), new PlayerMove(3, 2),
+                new PlayerMove(1, 6), new PlayerMove(4, 2),
+                new PlayerMove(4, 6), new PlayerMove(5, 2),
+                new PlayerMove(8, 6), new PlayerMove(6, 1),
+                new PlayerMove(2, 3), new PlayerMove(7, 1),
+                new PlayerMove(5, 3), new PlayerMove(8, 1),
             }, Players.First);
             Assert.AreEqual(Players.Second, board.GetOwner(0, 0), "Second win at board 0, 0");
             Assert.AreEqual(Players.Second, board.GetOwner(1, 0), "Second win at board 1, 0");
             Assert.AreEqual(Players.Second, board.GetOwner(2, 0), "Second win at board 2, 0");
             Assert.AreEqual(Players.First, board.GetOwner(1, 1), "First win at board 1, 1");
-            Assert.AreEqual(GameResults.SecondWin, board.Winner, "Second player win");
+            Assert.AreEqual(Players.Second, board.Winner, "Second player win");
 
             Assert.IsFalse(board.MakeMove(Players.Second, 7, 4), "Game already finished");
             Assert.AreEqual(0, board.GetAllMoves().Length, "Game already finished");
         }
+        //[TestMethod]
+        //public void BoardDraw1()
+        //{
+        //    UltimateTicTacToe board = new UltimateTicTacToe();
+        //    for (int i = 0; !board.IsFinished && i < UltimateTicTacToe.BoardSize * UltimateTicTacToe.BoardSize; i++)
+        //    {
+        //        PlayerMove move = board.GetAllMoves()[0];
+        //        board.MakeMove(board.PlayerMove, move.x, move.y);
+        //    }
+        //    Assert.AreEqual(Players.Draw, board.Winner, "Game must finished by draw");
+        //}
         [TestMethod]
         public void CloneEqual1()
         {
@@ -274,22 +257,14 @@ namespace UltimateTicTacToe.Tests
             UltimateTicTacToe board = new UltimateTicTacToe();
             Utils.MakeMoves(board, new PlayerMove[]
             {
-                new PlayerMove(1, 1),
-                new PlayerMove(3, 3),
-                new PlayerMove(2, 2),
-                new PlayerMove(6, 6),
-                new PlayerMove(0, 0),
-                new PlayerMove(4, 3),
-                new PlayerMove(3, 2),
-                new PlayerMove(1, 6),
-                new PlayerMove(4, 2),
-                new PlayerMove(4, 6),
-                new PlayerMove(5, 2),
-                new PlayerMove(8, 6),
-                new PlayerMove(6, 1),
-                new PlayerMove(2, 3),
-                new PlayerMove(7, 1),
-                new PlayerMove(5, 3),
+                new PlayerMove(1, 1), new PlayerMove(3, 3),
+                new PlayerMove(2, 2), new PlayerMove(6, 6),
+                new PlayerMove(0, 0), new PlayerMove(4, 3),
+                new PlayerMove(3, 2), new PlayerMove(1, 6),
+                new PlayerMove(4, 2), new PlayerMove(4, 6),
+                new PlayerMove(5, 2), new PlayerMove(8, 6),
+                new PlayerMove(6, 1), new PlayerMove(2, 3),
+                new PlayerMove(7, 1), new PlayerMove(5, 3),
                 new PlayerMove(8, 1),
             }, Players.First);
             UltimateTicTacToe board2 = (UltimateTicTacToe)board.Clone();
@@ -309,12 +284,9 @@ namespace UltimateTicTacToe.Tests
             UltimateTicTacToe board = new UltimateTicTacToe();
             Utils.MakeMoves(board, new PlayerMove[]
             {
-                new PlayerMove(1, 0),
-                new PlayerMove(3, 0),
-                new PlayerMove(0, 0),
-                new PlayerMove(0, 1),
-                new PlayerMove(0, 3),
-                new PlayerMove(1, 1),
+                new PlayerMove(1, 0), new PlayerMove(3, 0),
+                new PlayerMove(0, 0), new PlayerMove(0, 1),
+                new PlayerMove(0, 3), new PlayerMove(1, 1),
                 new PlayerMove(3, 3),
             }, Players.First);
             UltimateTicTacToe board2 = (UltimateTicTacToe)board.Clone();
@@ -344,12 +316,9 @@ namespace UltimateTicTacToe.Tests
             UltimateTicTacToe board = new UltimateTicTacToe();
             Utils.MakeMoves(board, new PlayerMove[]
             {
-                new PlayerMove(1, 0),
-                new PlayerMove(3, 0),
-                new PlayerMove(0, 0),
-                new PlayerMove(0, 1),
-                new PlayerMove(0, 3),
-                new PlayerMove(1, 1),
+                new PlayerMove(1, 0), new PlayerMove(3, 0),
+                new PlayerMove(0, 0), new PlayerMove(0, 1),
+                new PlayerMove(0, 3), new PlayerMove(1, 1),
                 new PlayerMove(3, 3),
             }, Players.First);
             UltimateTicTacToe board2 = (UltimateTicTacToe)board.Clone();
@@ -379,23 +348,18 @@ namespace UltimateTicTacToe.Tests
             UltimateTicTacToe board = new UltimateTicTacToe();
             Utils.MakeMoves(board, new PlayerMove[]
             {
-                new PlayerMove(1, 0),
-                new PlayerMove(3, 0),
-                new PlayerMove(0, 0),
-                new PlayerMove(0, 1),
-                new PlayerMove(0, 3),
-                new PlayerMove(1, 1),
+                new PlayerMove(1, 0), new PlayerMove(3, 0),
+                new PlayerMove(0, 0), new PlayerMove(0, 1),
+                new PlayerMove(0, 3), new PlayerMove(1, 1),
             }, Players.First);
             UltimateTicTacToe board2 = (UltimateTicTacToe)board.Clone();
             Utils.MakeMoves(board, new PlayerMove[]
             {
-                new PlayerMove(3, 3),
-                new PlayerMove(2, 1),
+                new PlayerMove(3, 3), new PlayerMove(2, 1),
             }, Players.First);
             Utils.MakeMoves(board2, new PlayerMove[]
             {
-                new PlayerMove(3, 5),
-                new PlayerMove(0, 6),
+                new PlayerMove(3, 5), new PlayerMove(0, 6),
                 new PlayerMove(2, 0),
             }, Players.First);
             Assert.AreEqual(board.Winner, board2.Winner, "Winner should be equal");

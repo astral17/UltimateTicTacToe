@@ -30,9 +30,9 @@ namespace UltimateTicTacToe.Strategies
         }
         protected int GetScore(Board board) // TODO: Extract heuristics
         {
-            if (board.Winner == board.PlayerMove.ToGameResults())
+            if (board.Winner == board.PlayerMove)
                 return 100;
-            if (board.Winner == board.PlayerMove.GetOpponent().ToGameResults())
+            if (board.Winner == board.PlayerMove.GetOpponent())
                 return -100;
             int score = 0;
             for (int i = 0; i < Board.LocalBoardSize; i++)
