@@ -14,7 +14,7 @@ namespace UltimateTicTacToe
         OfferDraw,
         Surrender,
     }
-    public struct StrategyAction
+    public struct StrategyAction // Is it really necessary?, Just work with BoardProxy
     {
         public Actions action;
         //public Players player;

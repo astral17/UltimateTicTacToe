@@ -15,7 +15,7 @@ namespace UltimateTicTacToe
     }
     public static class PlayersExtensions
     {
-        public static Players GetOpponent(this Players player) // TODO: None is undefined behaviour
+        public static Players GetOpponent(this Players player) // TODO: None and Draw is undefined behaviour
         {
             return (Players)(3 - (int)player);
         }
@@ -51,8 +51,8 @@ namespace UltimateTicTacToe
         public Players Winner { get; protected set; }
         public abstract Players this[int x, int y] { get; protected set; }
         public abstract Players GetOwner(int x, int y); // TODO: Rename
+        //public abstract bool IsAvailable(Players player, int x, int y);
         public abstract bool MakeMove(Players player, int x, int y);
-        public virtual bool MakeMove(int x, int y) => MakeMove(PlayerMove, x, y);
         public abstract PlayerMove[] GetAllMoves();
         protected Players GetResult() // TODO: Rename
         {
@@ -100,13 +100,10 @@ namespace UltimateTicTacToe
                         return Players.None;
             return Players.Draw;
         }
-
         public abstract object Clone();
-
-        public Players PlayerMove { get; protected set; } = Players.First; // Move to UltimateTicTacToe
         public bool IsFinished => Winner != Players.None;
     }
-    class TicTacToe : Board
+    public class TicTacToe : Board
     {
         private Players[,] board = new Players[LocalBoardSize, LocalBoardSize];
         public override Players this[int x, int y]
@@ -147,12 +144,14 @@ namespace UltimateTicTacToe
         public const int LocalBoardCount = LocalBoardSize;
 
         private TicTacToe[,] boards = new TicTacToe[LocalBoardCount, LocalBoardCount];
+        public Players PlayerMove { get; protected set; } = Players.First; // Move to UltimateTicTacToe
         public override Players this[int x, int y]
         {
             get => boards[x / LocalBoardSize, y / LocalBoardSize][x % LocalBoardSize, y % LocalBoardSize];
             protected set => throw new NotImplementedException();
         }
         public override Players GetOwner(int x, int y) => boards[x, y].Winner;
+        public TicTacToe GetBoard(int x, int y) => boards[x, y];
         public UltimateTicTacToe()
         {
             for (int i = 0; i < LocalBoardCount; i++)
@@ -184,6 +183,7 @@ namespace UltimateTicTacToe
             Winner = GetResult();
             return true;
         }
+        public virtual bool MakeMove(int x, int y) => MakeMove(PlayerMove, x, y);
 
         public override PlayerMove[] GetAllMoves() // TODO: Yield?
         {
@@ -235,7 +235,7 @@ namespace UltimateTicTacToe
         //{
         //    throw new NotImplementedException();
         //}
-        public StrategyAction LastAction { get; private set; } = new StrategyAction(Actions.None);
+        public StrategyAction LastAction { get; private set; } = new StrategyAction(Actions.None); // TODO: Action history
     }
 
     public class BoardProxy
@@ -261,9 +261,9 @@ namespace UltimateTicTacToe
             get => board[x, y];
             //protected set => throw new NotImplementedException();
         }
-        public Board GetBoardCopy()
+        public UltimateTicTacToe GetBoardCopy()
         {
-            return (Board)board.Clone();
+            return (UltimateTicTacToe)board.Clone();
         }
     }
 }

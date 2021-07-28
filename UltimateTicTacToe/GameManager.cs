@@ -28,9 +28,13 @@ namespace UltimateTicTacToe
                     tmp = currentStrategy;
                     currentStrategy = otherStrategy;
                     otherStrategy = tmp;
+                    MoveDone?.Invoke();
                 }
+                Finished?.Invoke();
             });
         }
-        // TODO: events
+        public event Action MoveDone;
+        public event Action Finished;
+        // TODO: events, Move
     }
 }

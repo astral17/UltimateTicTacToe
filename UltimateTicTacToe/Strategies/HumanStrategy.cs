@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace UltimateTicTacToe.Strategies
 {
-    class HumanStrategy : IStrategy
+    public class HumanStrategy : IStrategy
     {
         public BoardProxy board;
         private readonly object locker = new object();
@@ -30,14 +30,16 @@ namespace UltimateTicTacToe.Strategies
         public void MakeTurn()
         {
             PlayerMove move;
-            lock (locker)
+            do
             {
-                while (!isMoved)
-                    Monitor.Wait(locker);
-                isMoved = false;
-                move = this.move;
-            }
-            board.MakeMove(move.x, move.y);
+                lock (locker)
+                {
+                    while (!isMoved)
+                        Monitor.Wait(locker);
+                    isMoved = false;
+                    move = this.move;
+                }
+            } while (!board.MakeMove(move.x, move.y));
         }
     }
 }

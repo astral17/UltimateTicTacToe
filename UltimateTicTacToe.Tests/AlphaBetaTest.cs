@@ -30,7 +30,7 @@ namespace UltimateTicTacToe.Tests
             gm.StartGame(new Strategies.AlphaBetaStrategy(), new Strategies.AlphaBetaStrategy()).Wait();
             Assert.IsTrue(gm.Board.IsFinished, "Game must be finished");
         }
-        [TestMethod, Timeout(2000)]
+        [TestMethod, Timeout(5000)]
         public void AlphaBetaSpeed3()
         {
             UltimateTicTacToe board = new UltimateTicTacToe();

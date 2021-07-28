@@ -58,7 +58,7 @@
     <Compile Include="Strategies\AlphaBetaStrategy.cs" />
     <Compile Include="Strategies\HumanStrategy.cs" />
     <Compile Include="Strategies\IStrategy.cs" />
-    <Compile Include="Strategies\MiniMaxStrategy.cs" />
+    <Compile Include="Strategies\MonteCarloStrategy.cs" />
     <Compile Include="Strategies\RandomStrategy.cs" />
     <EmbeddedResource Include="GameForm.resx">
       <DependentUpon>GameForm.cs</DependentUpon>
