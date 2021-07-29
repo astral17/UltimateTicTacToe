@@ -29,7 +29,21 @@ namespace UltimateTicTacToe.Tests
         {
             for (int i = 0; i < UltimateTicTacToe.LocalBoardCount; i++)
                 for (int j = 0; j < UltimateTicTacToe.LocalBoardCount; j++)
-                    if (board.GetOwner(i, j) != cells[i, j]) // TODO: Draw fix
+                    if (board.GetOwner(i, j) != cells[i, j])
+                        return false;
+            return true;
+        }
+        public static bool BoardsEqual(UltimateTicTacToe left, UltimateTicTacToe right)
+        {
+            if (left.Winner != right.Winner)
+                return false;
+            for (int i = 0; i < UltimateTicTacToe.LocalBoardCount; i++)
+                for (int j = 0; j < UltimateTicTacToe.LocalBoardCount; j++)
+                    if (left.GetOwner(i, j) != right.GetOwner(i, j))
+                        return false;
+            for (int i = 0; i < UltimateTicTacToe.BoardSize; i++)
+                for (int j = 0; j < UltimateTicTacToe.BoardSize; j++)
+                    if (left[i, j] != right[i, j])
                         return false;
             return true;
         }

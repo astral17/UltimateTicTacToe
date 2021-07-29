@@ -134,7 +134,6 @@ namespace UltimateTicTacToe.Tests
             Assert.IsFalse(board.MakeMove(Players.Second, 0, 0), "Second player couldn't start game");
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
 
-            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell should be updated");
             cells[0, 0] = Players.First;
             Assert.IsTrue(board.MakeMove(Players.First, 0, 0), "First move could be placed everywhere");
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell should be updated");
@@ -173,6 +172,112 @@ namespace UltimateTicTacToe.Tests
             Assert.AreEqual(Players.None, board.GetOwner(0, 0), "None winners at board 0, 0");
             Assert.IsTrue(board.MakeMove(Players.First, 2, 1), "Last free cell at board 0, 0");
             Assert.AreEqual(Players.Draw, board.GetOwner(0, 0), "Draw at board 0, 0");
+        }
+        [TestMethod]
+        public void BoardUndo1()
+        {
+            UltimateTicTacToe board = new UltimateTicTacToe();
+            Players[,] cells = new Players[UltimateTicTacToe.BoardSize, UltimateTicTacToe.BoardSize];
+            Assert.IsFalse(board.MakeMove(Players.Second, 0, 0), "Second player couldn't start game");
+            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
+
+            Assert.IsTrue(board.MakeMove(Players.First, 0, 0), "First move could be placed everywhere");
+            board.Undo();
+            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
+            Assert.IsTrue(board.MakeMove(Players.First, 0, 0), "First move could be placed everywhere");
+            cells[0, 0] = Players.First;
+            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell should be updated");
+            Assert.AreEqual(new ActiveBoard { all = false, x = 0, y = 0 }, board.ActiveBoard, "Board 0, 0");
+
+            Assert.IsFalse(board.MakeMove(Players.First, 1, 0), "First player couldn't play during opponent's move");
+            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
+
+            Assert.IsFalse(board.MakeMove(Players.Second, 8, 8), "Player must move only to active board");
+            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
+
+            Assert.IsFalse(board.MakeMove(Players.Second, 0, 0), "Already taken cell");
+            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
+
+            Assert.IsTrue(board.MakeMove(Players.Second, 1, 1), "Valid move");
+            board.Undo();
+            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
+            cells[1, 1] = Players.Second;
+            Assert.IsTrue(board.MakeMove(Players.Second, 1, 1), "Valid move");
+            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell should be updated");
+            Assert.AreEqual(new ActiveBoard { all = false, x = 1, y = 1 }, board.ActiveBoard, "Board 1, 1");
+        }
+        [TestMethod]
+        public void BoardUndo2()
+        {
+            UltimateTicTacToe board = new UltimateTicTacToe();
+            Assert.AreEqual(Players.None, board.GetOwner(0, 0), "None winners at board 0, 0");
+            PlayerMove[] moves = new PlayerMove[]
+            {
+                new PlayerMove(0, 0), new PlayerMove(1, 1),
+                new PlayerMove(3, 3), new PlayerMove(0, 1),
+                new PlayerMove(0, 3), new PlayerMove(0, 2),
+                new PlayerMove(0, 6), new PlayerMove(1, 0),
+                new PlayerMove(3, 0), new PlayerMove(2, 2),
+                new PlayerMove(8, 7), new PlayerMove(6, 3),
+                new PlayerMove(2, 0), new PlayerMove(6, 0),
+                new PlayerMove(1, 2), new PlayerMove(3, 6),
+            };
+            Utils.MakeMoves(board, moves, Players.First);
+            UltimateTicTacToe boardCopy = (UltimateTicTacToe)board.Clone();
+            for (int i = 0; i < moves.Length; i++)
+                board.Undo();
+            Assert.IsTrue(Utils.BoardsEqual(board, new UltimateTicTacToe()), "Board should be clear");
+            Utils.MakeMoves(board, moves, Players.First);
+            Assert.IsTrue(Utils.BoardsEqual(board, boardCopy), "Board should be the same");
+        }
+        [TestMethod]
+        public void BoardUndo3()
+        {
+            UltimateTicTacToe board = new UltimateTicTacToe();
+            while (!board.IsFinished)
+            {
+                PlayerMove move = board.GetAllMoves()[0];
+                board.MakeMove(board.PlayerMove, move.x, move.y);
+            }
+            Assert.AreEqual(Players.Second, board.Winner, "Second win");
+            board.Undo();
+            Assert.AreEqual(Players.None, board.Winner, "Game shouldn't be finished");
+            Assert.IsTrue(board.GetAllMoves().Length > 0, "Game should have at least 1 possible move");
+            PlayerMove last = board.GetAllMoves()[0];
+            board.MakeMove(board.PlayerMove, last.x, last.y);
+            Assert.AreEqual(Players.Second, board.Winner, "Second win");
+        }
+        [TestMethod]
+        public void BoardUndo4()
+        {
+            UltimateTicTacToe board = new UltimateTicTacToe();
+            board.MakeMove(board.PlayerMove, 0, 0);
+            UltimateTicTacToe boardCopy = (UltimateTicTacToe)board.Clone();
+            board.Undo();
+            Assert.IsFalse(Utils.BoardsEqual(board, boardCopy), "After undo board should be changed");
+            boardCopy.Undo();
+            Assert.IsTrue(Utils.BoardsEqual(board, boardCopy), "Both board should be equal and empty");
+        }
+        [TestMethod]
+        public void BoardUndo5()
+        {
+            UltimateTicTacToe board = new UltimateTicTacToe();
+            board.MakeMove(board.PlayerMove, 0, 0);
+            UltimateTicTacToe boardCopy = (UltimateTicTacToe)board.Clone();
+            boardCopy.MakeMove(boardCopy.PlayerMove, 1, 1);
+            board.Undo();
+            Players[,] cells = new Players[UltimateTicTacToe.BoardSize, UltimateTicTacToe.BoardSize];
+            Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Board should be empty");
+            cells[0, 0] = Players.First;
+            cells[1, 1] = Players.Second;
+            Assert.IsTrue(Utils.CompareBoardWithArray(boardCopy, cells), "Board should have two cells");
+            boardCopy.Undo();
+            cells[1, 1] = Players.None;
+            Assert.IsTrue(Utils.CompareBoardWithArray(boardCopy, cells), "After undo board should have one cell");
+            Assert.AreEqual(Players.Second, boardCopy.PlayerMove, "Current move should be for second");
+            boardCopy.Undo();
+            Assert.AreEqual(Players.First, boardCopy.PlayerMove, "Current move should be for first");
+            Assert.IsTrue(Utils.BoardsEqual(board, boardCopy), "Board should be equal to start");
         }
         [TestMethod]
         public void BoardWin1()

@@ -48,8 +48,8 @@ namespace UltimateTicTacToe
     public abstract class Board : ICloneable
     {
         public const int LocalBoardSize = 3;
-        public Players Winner { get; protected set; }
-        public abstract Players this[int x, int y] { get; protected set; }
+        public Players Winner { get; set; }
+        public abstract Players this[int x, int y] { get; set; }
         public abstract Players GetOwner(int x, int y); // TODO: Rename
         //public abstract bool IsAvailable(Players player, int x, int y);
         public abstract bool MakeMove(Players player, int x, int y);
@@ -109,7 +109,12 @@ namespace UltimateTicTacToe
         public override Players this[int x, int y]
         { 
             get => board[x, y];
-            protected set => board[x, y] = value;
+            set // Only outer usage
+            {
+                board[x, y] = value;
+                Winner = Players.None;
+                Winner = GetResult();
+            }
         }
         public override Players GetOwner(int x, int y) => board[x, y];
         public override PlayerMove[] GetAllMoves()
@@ -148,7 +153,12 @@ namespace UltimateTicTacToe
         public override Players this[int x, int y]
         {
             get => boards[x / LocalBoardSize, y / LocalBoardSize][x % LocalBoardSize, y % LocalBoardSize];
-            protected set => throw new NotImplementedException();
+            set // Only outer usage
+            {
+                boards[x / LocalBoardSize, y / LocalBoardSize][x % LocalBoardSize, y % LocalBoardSize] = value;
+                Winner = Players.None;
+                Winner = GetResult();
+            }
         }
         public override Players GetOwner(int x, int y) => boards[x, y].Winner;
         public TicTacToe GetBoard(int x, int y) => boards[x, y];
@@ -171,6 +181,12 @@ namespace UltimateTicTacToe
             // Is possible move to cell
             if (!boards[x / LocalBoardSize, y / LocalBoardSize].MakeMove(player, x % LocalBoardSize, y % LocalBoardSize))
                 return false;
+            history.Push(new HistoryMove
+            {
+                x = x,
+                y = y,
+                all = ActiveBoard.all
+            });
 
             ActiveBoard = new ActiveBoard
             {
@@ -184,6 +200,27 @@ namespace UltimateTicTacToe
             return true;
         }
         public virtual bool MakeMove(int x, int y) => MakeMove(PlayerMove, x, y);
+        private struct HistoryMove
+        {
+            public int x, y;
+            public bool all;
+        }
+        private Stack<HistoryMove> history = new Stack<HistoryMove>();
+        public void Undo()
+        {
+            HistoryMove move = history.Pop();
+            boards[move.x / LocalBoardSize, move.y / LocalBoardSize][move.x % LocalBoardSize, move.y % LocalBoardSize] = Players.None;
+            Winner = Players.None;
+            if (history.Count > 0)
+                LastAction = new StrategyAction(history.Peek().x, history.Peek().y);
+            PlayerMove = PlayerMove.GetOpponent();
+            ActiveBoard = new ActiveBoard
+            {
+                x = move.x / LocalBoardSize,
+                y = move.y / LocalBoardSize,
+                all = move.all
+            };
+        }
 
         public override PlayerMove[] GetAllMoves() // TODO: Yield?
         {
@@ -224,6 +261,7 @@ namespace UltimateTicTacToe
         public override object Clone()
         {
             UltimateTicTacToe result = (UltimateTicTacToe)MemberwiseClone();
+            result.history = new Stack<HistoryMove>(history); // TODO: Clone without history for speed
             result.boards = new TicTacToe[LocalBoardCount, LocalBoardCount];
             for (int i = 0; i < LocalBoardCount; i++)
                 for (int j = 0; j < LocalBoardCount; j++)

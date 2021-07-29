@@ -95,11 +95,12 @@ namespace UltimateTicTacToe.Strategies
             StrategyMove bestMove = new StrategyMove(-int.MaxValue), curMove;
             foreach (PlayerMove move in moves)
             {
-                UltimateTicTacToe curBoard = (UltimateTicTacToe)board.Clone(); // TODO: Undo moves
-                curBoard.MakeMove(move.x, move.y); // TODO: Check is moved
+                //UltimateTicTacToe curBoard = (UltimateTicTacToe)board.Clone(); // TODO: Undo moves
+                board.MakeMove(move.x, move.y); // TODO: Check is moved
                 curMove.x = move.x;
                 curMove.y = move.y;
-                curMove.score = -AlphaBeta(curBoard, depth - 1, -beta, -alpha).score;
+                curMove.score = -AlphaBeta(board, depth - 1, -beta, -alpha).score;
+                board.Undo();
                 if (bestMove.score < curMove.score)
                     bestMove = curMove;
                 if (beta <= curMove.score)

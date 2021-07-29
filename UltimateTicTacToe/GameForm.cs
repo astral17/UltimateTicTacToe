@@ -18,9 +18,9 @@ namespace UltimateTicTacToe
         {
             InitializeComponent();
             DoubleBuffered = true;
-            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(7), new Strategies.AlphaBetaStrategy(7));
+            gameManager.StartGame(new Strategies.AlphaBetaStrategy(3), new Strategies.AlphaBetaStrategy(6));
             //gameManager.StartGame(new Strategies.AlphaBetaStrategy(3), new Strategies.MonteCarloStrategy(10000));
-            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(7), human);
+            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(2), human);
             //gameManager.StartGame(new Strategies.MonteCarloStrategy(1000), human);
             gameManager.MoveDone += () => Invoke(new Action(Refresh));
         }

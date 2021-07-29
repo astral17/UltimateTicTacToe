@@ -11,12 +11,12 @@ namespace UltimateTicTacToe.Tests
         public void MonteCarloWinRandom()
         {
             GameManager gm = new GameManager();
-            gm.StartGame(new Strategies.MonteCarloStrategy(), new Strategies.RandomStrategy()).Wait();
+            gm.StartGame(new Strategies.MonteCarloStrategy(500), new Strategies.RandomStrategy()).Wait();
             Assert.AreEqual(Players.First, gm.Board.Winner, "MonteCarlo must win Random");
-            gm.StartGame(new Strategies.RandomStrategy(), new Strategies.MonteCarloStrategy()).Wait();
+            gm.StartGame(new Strategies.RandomStrategy(), new Strategies.MonteCarloStrategy(500)).Wait();
             Assert.AreEqual(Players.Second, gm.Board.Winner, "MonteCarlo must win Random");
         }
-        [TestMethod, Timeout(100)]
+        [TestMethod, Timeout(200)]
         public void MonteCarloSpeed1()
         {
             GameManager gm = new GameManager();

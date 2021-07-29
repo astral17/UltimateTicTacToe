@@ -35,6 +35,5 @@ namespace UltimateTicTacToe
         }
         public event Action MoveDone;
         public event Action Finished;
-        // TODO: events, Move
     }
 }

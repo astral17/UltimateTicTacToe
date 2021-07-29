@@ -7,7 +7,7 @@ namespace UltimateTicTacToe.Tests
     [TestClass]
     public class AlphaBetaTest
     {
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(2000)]
         public void AlphaBetaWinRandom()
         {
             GameManager gm = new GameManager();
@@ -16,7 +16,7 @@ namespace UltimateTicTacToe.Tests
             gm.StartGame(new Strategies.RandomStrategy(), new Strategies.AlphaBetaStrategy()).Wait();
             Assert.AreEqual(Players.Second, gm.Board.Winner, "AlphaBeta must win Random");
         }
-        [TestMethod, Timeout(100)]
+        [TestMethod, Timeout(200)]
         public void AlphaBetaSpeed1()
         {
             GameManager gm = new GameManager();
