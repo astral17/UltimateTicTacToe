@@ -24,5 +24,11 @@ namespace UltimateTicTacToe
             int index = random.Next(list.Count);
             return list[index];
         }
+        public static void Swap<T>(ref T first, ref T second)
+        {
+            T tmp = first;
+            first = second;
+            second = tmp;
+        }
     }
 }

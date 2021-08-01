@@ -19,14 +19,9 @@ namespace UltimateTicTacToe.Strategies
         }
 
         protected readonly int maxDepth;
-        protected BoardProxy board;
         public AlphaBetaStrategy(int maxDepth = 5)
         {
             this.maxDepth = maxDepth;
-        }
-        public void Init(BoardProxy board)
-        {
-            this.board = board;
         }
         protected virtual int GetBoardScore(Board board, Players player)
         {
@@ -109,7 +104,7 @@ namespace UltimateTicTacToe.Strategies
             }
             return bestMove;
         }
-        public void MakeTurn()
+        public void MakeMove(BoardProxy board)
         {
             StrategyMove move = AlphaBeta(board.GetBoardCopy(), maxDepth);
             Console.WriteLine("AlphaBetaDebug: score = {0}, at [{1}, {2}]", move.score, move.x, move.y);

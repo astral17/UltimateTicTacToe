@@ -8,14 +8,7 @@ namespace UltimateTicTacToe.Strategies
 {
     class RandomStrategy : IStrategy
     {
-        static readonly Random random = new Random();
-        BoardProxy board;
-        public void Init(BoardProxy board)
-        {
-            this.board = board;
-        }
-
-        public void MakeTurn()
+        public void MakeMove(BoardProxy board)
         {
             PlayerMove move = board.GetAllMoves().RandomElement();
             board.MakeMove(move.x, move.y);

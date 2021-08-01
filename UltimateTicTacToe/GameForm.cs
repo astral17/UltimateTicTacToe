@@ -18,10 +18,12 @@ namespace UltimateTicTacToe
         {
             InitializeComponent();
             DoubleBuffered = true;
-            gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), new Strategies.AlphaBetaStrategy(4));
+            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), new Strategies.AlphaBetaStrategy(4));
             //gameManager.StartGame(new Strategies.AlphaBetaStrategy(3), new Strategies.MonteCarloStrategy(10000));
             //gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), human);
+            BoardClick += human.SetMove;
             //gameManager.StartGame(human, new Strategies.AlphaBetaStrategy(2));
+            gameManager.StartGame(human, human);
             //gameManager.StartGame(new Strategies.MonteCarloStrategy(1000), human);
             gameManager.MoveDone += () => Invoke(new Action(Refresh));
         }
@@ -36,8 +38,12 @@ namespace UltimateTicTacToe
             //Console.WriteLine(board.MakeMove(Players.First, 0 , 0));
             //Console.WriteLine(board.MakeMove(Players.Second, 1 , 0));
             //board.DebugPrint();
-            human.MakeMove(e.X / CellSize, e.Y / CellSize);
+            //human.MakeMove(e.X / CellSize, e.Y / CellSize);
+            int x = e.X / CellSize, y = e.Y / CellSize;
+            if (0 <= x && x < UltimateTicTacToe.BoardSize && 0 <= y && y < UltimateTicTacToe.BoardSize)
+                BoardClick?.Invoke(x, y);
         }
+        private event Action<int, int> BoardClick;
 
         private readonly string[] sign = new string[3] { " ", "X", "O" };
         private readonly Font signFont = new Font("Arial", 20);

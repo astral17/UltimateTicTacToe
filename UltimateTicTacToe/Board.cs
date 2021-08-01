@@ -194,7 +194,7 @@ namespace UltimateTicTacToe
                 y = y % LocalBoardSize,
                 all = boards[x % LocalBoardSize, y % LocalBoardSize].Winner != Players.None // TODO: Rule Set
             };
-            LastAction = new StrategyAction(x, y);
+            LastAction = new PlayerMove(x, y);
             PlayerMove = PlayerMove.GetOpponent();
             Winner = GetResult();
             return true;
@@ -212,7 +212,7 @@ namespace UltimateTicTacToe
             boards[move.x / LocalBoardSize, move.y / LocalBoardSize][move.x % LocalBoardSize, move.y % LocalBoardSize] = Players.None;
             Winner = Players.None;
             if (history.Count > 0)
-                LastAction = new StrategyAction(history.Peek().x, history.Peek().y);
+                LastAction = new PlayerMove(history.Peek().x, history.Peek().y);
             PlayerMove = PlayerMove.GetOpponent();
             ActiveBoard = new ActiveBoard
             {
@@ -268,12 +268,7 @@ namespace UltimateTicTacToe
                     result.boards[i, j] = (TicTacToe)boards[i, j].Clone();
             return result;
         }
-
-        //public bool Undo()
-        //{
-        //    throw new NotImplementedException();
-        //}
-        public StrategyAction LastAction { get; private set; } = new StrategyAction(Actions.None); // TODO: Action history
+        public PlayerMove LastAction { get; private set; } = new PlayerMove();
     }
 
     public class BoardProxy
@@ -288,6 +283,9 @@ namespace UltimateTicTacToe
         public bool MakeMove(int x, int y) => board.MakeMove(Player, x, y); // TODO: throw error if try enemy move
         //public StrategyAction LastAction => board.LastAction;
         //public ActiveBoard ActiveBoard => board.ActiveBoard;
+        //public bool Undo();
+        //public bool OfferDraw();
+        //public bool Surrender();
         public Players Player { get; }
         public BoardProxy(UltimateTicTacToe board, Players player)
         {

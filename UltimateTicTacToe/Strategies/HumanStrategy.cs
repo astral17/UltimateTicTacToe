@@ -9,15 +9,10 @@ namespace UltimateTicTacToe.Strategies
 {
     public class HumanStrategy : IStrategy
     {
-        public BoardProxy board;
         private readonly object locker = new object();
         private PlayerMove move = new PlayerMove();
         private bool isMoved = false;
-        public void Init(BoardProxy board)
-        {
-            this.board = board;
-        }
-        public void MakeMove(int x, int y)
+        public void SetMove(int x, int y)
         {
             lock (locker)
             {
@@ -27,7 +22,7 @@ namespace UltimateTicTacToe.Strategies
                 Monitor.Pulse(locker);
             }
         }
-        public void MakeTurn()
+        public void MakeMove(BoardProxy board)
         {
             PlayerMove move;
             do

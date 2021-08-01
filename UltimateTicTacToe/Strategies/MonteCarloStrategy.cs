@@ -80,14 +80,9 @@ namespace UltimateTicTacToe.Strategies
         }
         protected static readonly Random random = new Random();
         protected readonly int maxAttempts;
-        protected BoardProxy board;
         public MonteCarloStrategy(int maxAttempts = 100)
         {
             this.maxAttempts = maxAttempts;
-        }
-        public void Init(BoardProxy board)
-        {
-            this.board = board;
         }
         protected PlayerMove MonteCarlo(UltimateTicTacToe board, int attempts)
         {
@@ -108,7 +103,7 @@ namespace UltimateTicTacToe.Strategies
             }
             return moves[bestMove];
         }
-        public void MakeTurn()
+        public void MakeMove(BoardProxy board)
         {
             PlayerMove move = MonteCarlo(board.GetBoardCopy(), maxAttempts);
             //Console.WriteLine("MonteCarloDebug: score = {0}, at [{1}, {2}]", move.score, move.x, move.y);

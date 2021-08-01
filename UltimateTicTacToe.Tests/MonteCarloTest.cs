@@ -35,8 +35,7 @@ namespace UltimateTicTacToe.Tests
         {
             UltimateTicTacToe board = new UltimateTicTacToe();
             IStrategy strategy = new Strategies.MonteCarloStrategy(10000);
-            strategy.Init(new BoardProxy(board, Players.First));
-            strategy.MakeTurn();
+            strategy.MakeMove(new BoardProxy(board, Players.First));
             Assert.AreEqual(Players.Second, board.PlayerMove, "Strategy must make move");
         }
     }
