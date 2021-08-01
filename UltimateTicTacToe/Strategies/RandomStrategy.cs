@@ -17,8 +17,7 @@ namespace UltimateTicTacToe.Strategies
 
         public void MakeTurn()
         {
-            PlayerMove[] moves = board.GetAllMoves();
-            PlayerMove move = moves[random.Next(moves.Length)];
+            PlayerMove move = board.GetAllMoves().RandomElement();
             board.MakeMove(move.x, move.y);
         }
     }

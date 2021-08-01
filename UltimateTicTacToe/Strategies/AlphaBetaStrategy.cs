@@ -28,7 +28,7 @@ namespace UltimateTicTacToe.Strategies
         {
             this.board = board;
         }
-        protected int GetBoardScore(Board board, Players player)
+        protected virtual int GetBoardScore(Board board, Players player)
         {
             int score = 0;
             int count;
@@ -38,8 +38,8 @@ namespace UltimateTicTacToe.Strategies
                 for (int j = 0; j < Board.LocalBoardSize; j++)
                     if (board.GetOwner(i, j) != Players.None)
                         count += board.GetOwner(i, j) == player ? 1 : -1;
-                if (count == 2)
-                    score++;
+                if (Math.Abs(count) == 2)
+                    score += Math.Sign(count);
             }
             // Horizontal
             for (int j = 0; j < Board.LocalBoardSize; j++)
@@ -48,23 +48,23 @@ namespace UltimateTicTacToe.Strategies
                 for (int i = 0; i < Board.LocalBoardSize; i++)
                     if (board.GetOwner(i, j) != Players.None)
                         count += board.GetOwner(i, j) == player ? 1 : -1;
-                if (count == 2)
-                    score++;
+                if (Math.Abs(count) == 2)
+                    score += Math.Sign(count);
             }
             // Main Diagonal
             count = 0;
             for (int i = 0; i < Board.LocalBoardSize; i++)
                 if (board.GetOwner(i, i) != Players.None)
                     count += board.GetOwner(i, i) == player ? 1 : -1;
-            if (count == 2)
-                score++;
+            if (Math.Abs(count) == 2)
+                score += Math.Sign(count);
             // Side Diagonal
             count = 0;
             for (int i = 0; i < Board.LocalBoardSize; i++)
                 if (board.GetOwner(Board.LocalBoardSize - 1 - i, i) != Players.None)
                     count += board.GetOwner(Board.LocalBoardSize - 1 - i, i) == player ? 1 : -1;
-            if (count == 2)
-                score++;
+            if (Math.Abs(count) == 2)
+                score += Math.Sign(count);
             return score;
         }
         protected virtual int GetScore(UltimateTicTacToe board) // TODO: Extract heuristics
@@ -92,10 +92,10 @@ namespace UltimateTicTacToe.Strategies
             if (depth == 0 || board.IsFinished)
                 return new StrategyMove(GetScore(board));
             PlayerMove[] moves = board.GetAllMoves(); // TODO: Sort by score
+            moves.Shuffle();
             StrategyMove bestMove = new StrategyMove(-int.MaxValue), curMove;
             foreach (PlayerMove move in moves)
             {
-                //UltimateTicTacToe curBoard = (UltimateTicTacToe)board.Clone(); // TODO: Undo moves
                 board.MakeMove(move.x, move.y); // TODO: Check is moved
                 curMove.x = move.x;
                 curMove.y = move.y;
