@@ -9,7 +9,7 @@ namespace UltimateTicTacToe
 {
     public class GameManager
     {
-        public UltimateTicTacToe Board { get; private set; } = null; // TODO: Thread Safe Access
+        public UltimateTicTacToe Board { get; private set; } = null;
         
         public Task StartGame(IStrategy firstPlayer, IStrategy secondPlayer/*, CancellationToken token*/)
         {
