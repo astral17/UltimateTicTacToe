@@ -36,7 +36,7 @@
             // 
             this.GameCanvas.Location = new System.Drawing.Point(12, 12);
             this.GameCanvas.Name = "GameCanvas";
-            this.GameCanvas.Size = new System.Drawing.Size(431, 426);
+            this.GameCanvas.Size = new System.Drawing.Size(316, 316);
             this.GameCanvas.TabIndex = 0;
             this.GameCanvas.TabStop = false;
             this.GameCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.GameCanvas_Paint);
@@ -44,9 +44,8 @@
             // 
             // GameForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(599, 450);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(484, 343);
             this.Controls.Add(this.GameCanvas);
             this.Name = "GameForm";
             this.Text = "Ultimate Tic-Tac-Toe";
