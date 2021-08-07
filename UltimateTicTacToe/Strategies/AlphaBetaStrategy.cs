@@ -23,61 +23,68 @@ namespace UltimateTicTacToe.Strategies
         {
             this.maxDepth = maxDepth;
         }
+
+        private static readonly int[] lineScore = new int[64];
+        static AlphaBetaStrategy()
+        {
+            int[] scorePerCell = new int[] { 0, 1, 10, 100 };
+            for (int i = 0; i < 2; i++)
+                for (int j = 0; j < 2; j++)
+                    for (int k = 0; k < 2; k++)
+                    {
+                        int cur = (i << 4) + (j << 2) + k;
+                        lineScore[cur] = scorePerCell[i + j + k];
+                        lineScore[cur << 1] = -scorePerCell[i + j + k];
+                    }
+        }
         protected virtual int GetBoardScore(Board board, Players player)
         {
             int score = 0;
-            int count;
+            int line;
+            // Vertical
             for (int i = 0; i < Board.LocalBoardSize; i++)
             {
-                count = 0;
+                line = 0;
                 for (int j = 0; j < Board.LocalBoardSize; j++)
-                    if (board.GetOwner(i, j) != Players.None)
-                        count += board.GetOwner(i, j) == player ? 1 : -1;
-                if (Math.Abs(count) == 2)
-                    score += Math.Sign(count);
+                    line = (line << 2) + (int)board.GetOwner(i, j);
+                score += lineScore[line];
             }
             // Horizontal
             for (int j = 0; j < Board.LocalBoardSize; j++)
             {
-                count = 0;
+                line = 0;
                 for (int i = 0; i < Board.LocalBoardSize; i++)
-                    if (board.GetOwner(i, j) != Players.None)
-                        count += board.GetOwner(i, j) == player ? 1 : -1;
-                if (Math.Abs(count) == 2)
-                    score += Math.Sign(count);
+                    line = (line << 2) + (int)board.GetOwner(i, j);
+                score += lineScore[line];
             }
             // Main Diagonal
-            count = 0;
+            line = 0;
             for (int i = 0; i < Board.LocalBoardSize; i++)
-                if (board.GetOwner(i, i) != Players.None)
-                    count += board.GetOwner(i, i) == player ? 1 : -1;
-            if (Math.Abs(count) == 2)
-                score += Math.Sign(count);
+                line = (line << 2) + (int)board.GetOwner(i, i);
+            score += lineScore[line];
             // Side Diagonal
-            count = 0;
+            line = 0;
             for (int i = 0; i < Board.LocalBoardSize; i++)
-                if (board.GetOwner(Board.LocalBoardSize - 1 - i, i) != Players.None)
-                    count += board.GetOwner(Board.LocalBoardSize - 1 - i, i) == player ? 1 : -1;
-            if (Math.Abs(count) == 2)
-                score += Math.Sign(count);
+                line = (line << 2) + (int)board.GetOwner(Board.LocalBoardSize - 1 - i, i);
+            score += lineScore[line];
+            if (player == Players.Second)
+                score *= -1;
             return score;
         }
         protected virtual int GetScore(UltimateTicTacToe board) // TODO: Extract heuristics
         {
             if (board.Winner == board.PlayerMove)
-                return 1000;
+                return 100000;
             if (board.Winner == board.PlayerMove.GetOpponent())
-                return -1000;
+                return -100000;
             Players player = board.PlayerMove;
-            int score = GetBoardScore(board, player) * 10;
+            int score = GetBoardScore(board, player) * 100;
             for (int x = 0; x < UltimateTicTacToe.LocalBoardCount; x++)
                 for (int y = 0; y < UltimateTicTacToe.LocalBoardCount; y++)
                 {
                     TicTacToe smallBoard = board.GetBoard(x, y);
                     if (smallBoard.Winner == Players.None)
                         score += GetBoardScore(smallBoard, player);
-                    else if (smallBoard.Winner != Players.Draw)
-                        score += smallBoard.Winner == board.PlayerMove ? 10 : -10;
                 }
             return score;
         }
