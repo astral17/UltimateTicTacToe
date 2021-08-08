@@ -19,18 +19,16 @@ namespace UltimateTicTacToe
         {
             InitializeComponent();
             DoubleBuffered = true;
-            gameManager.StartGame(new Strategies.AlphaBetaStrategy(3), new Strategies.AlphaBetaStrategy(3));
-            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(3), new Strategies.MonteCarloStrategy(10000));
+            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), new Strategies.AlphaBetaStrategy(8));
+            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(6), new Strategies.MonteCarloStrategy(30000));
+            gameManager.StartGame(new Strategies.MonteCarloStrategy(30000), new Strategies.AlphaBetaStrategy(5));
             //gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), human);
-            BoardClick += human.SetMove;
-            //gameManager.StartGame(human, new Strategies.AlphaBetaStrategy(2));
+            //gameManager.StartGame(human, new Strategies.AlphaBetaStrategy(12));
             //gameManager.StartGame(human, human);
             //gameManager.StartGame(new Strategies.MonteCarloStrategy(1000), human);
-            gameManager.MoveDone += () =>
-            {
-                FetchBoard(gameManager.Board);
-                Invoke(new Action(Refresh));
-            };
+            BoardClick += human.SetMove;
+            gameManager.Started += OnBoardEvent;
+            gameManager.MoveDone += OnBoardEvent;
         }
 
         private event Action<int, int> BoardClick;
@@ -47,6 +45,11 @@ namespace UltimateTicTacToe
         private PlayerMove[] moves = new PlayerMove[0];
         private Players[,] cells = new Players[UltimateTicTacToe.BoardSize, UltimateTicTacToe.BoardSize];
         private Players[,] winners = new Players[UltimateTicTacToe.LocalBoardCount, UltimateTicTacToe.LocalBoardCount];
+        private void OnBoardEvent(UltimateTicTacToe board)
+        {
+            FetchBoard(board);
+            Invoke(new Action(Refresh));
+        }
         private void FetchBoard(UltimateTicTacToe board)
         {
             winner = board.Winner;

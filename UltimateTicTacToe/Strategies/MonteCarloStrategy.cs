@@ -10,37 +10,34 @@ namespace UltimateTicTacToe.Strategies
     {
         protected class TreeNode
         {
-            public int win, total;
+            public int score, total;
             public readonly TreeNode[] children;
             public TreeNode(int size)
             {
-                win = total = 0;
+                score = total = 0;
                 children = new TreeNode[size];
             }
-            public double GetScore()
+            public double GetScore(int parentTotal)
             {
-                return win / (double)total;
+                return score / (double)total + Math.Sqrt(2 * Math.Log(parentTotal) / total);
             }
-            private const int MaxPlayoutScore = 2;
             public int Playout(UltimateTicTacToe board)
             {
                 Players player = board.PlayerMove;
                 while (!board.IsFinished)
                 {
-                    // Mb use RandomStrategy?
-                    PlayerMove[] moves = board.GetAllMoves();
-                    PlayerMove move = moves[random.Next(moves.Length)];
+                    PlayerMove move = board.GetAllMoves().RandomElement();
                     board.MakeMove(board.PlayerMove, move.x, move.y);
                 }
-                int result = board.Winner == Players.Draw ? 1 : board.Winner == player ? 2 : 0;
-                win += result;
-                total += MaxPlayoutScore;
+                int result = board.Winner == Players.Draw ? 0 : board.Winner == player ? -1 : 1;
+                score += result;
+                total++;
                 return result;
             }
             public int Selection(UltimateTicTacToe board)
             {
                 if (board.IsFinished)
-                    return win;
+                    return score;
                 // If has null leaf then Expansion
                 //children.Find
                 PlayerMove[] moves = board.GetAllMoves();
@@ -50,31 +47,31 @@ namespace UltimateTicTacToe.Strategies
                 int result;
                 if (nullNodes.Length > 0)
                 {
-                    int index = nullNodes[random.Next(nullNodes.Length)];
+                    int index = nullNodes.RandomElement();
                     board.MakeMove(board.PlayerMove, moves[index].x, moves[index].y);
                     children[index] = new TreeNode(board.GetAllMoves().Length);
-                    result = MaxPlayoutScore - children[index].Playout(board);
+                    result = -children[index].Playout(board);
                 }
                 else
                 {
                     // Else Selection
-                    double bestScore = double.PositiveInfinity;
+                    double bestScore = double.NegativeInfinity;
                     int bestMove = -1;
                     for (int i = 0; i < children.Length; i++)
                     //foreach (TreeNode child in children)
                     {
-                        double score = children[i].GetScore();
-                        if (score < bestScore)
+                        double score = children[i].GetScore(total);
+                        if (score > bestScore)
                         {
                             bestScore = score;
                             bestMove = i;
                         }
                     }
                     board.MakeMove(board.PlayerMove, moves[bestMove].x, moves[bestMove].y);
-                    result = MaxPlayoutScore - children[bestMove].Selection(board);
+                    result = -children[bestMove].Selection(board);
                 }
-                win += result;
-                total += MaxPlayoutScore;
+                score += result;
+                total++;
                 return result;
             }
         }
@@ -84,29 +81,51 @@ namespace UltimateTicTacToe.Strategies
         {
             this.maxAttempts = maxAttempts;
         }
+        TreeNode root = null;
+        PlayerMove[] moves = new PlayerMove[0];
         protected PlayerMove MonteCarlo(UltimateTicTacToe board, int attempts)
         {
-            PlayerMove[] moves = board.GetAllMoves();
-            TreeNode root = new TreeNode(moves.Length);
+            if (root != null) // TODO: Fix reuse
+            {
+                bool found = false;
+                for (int i = 0; i < moves.Length; i++)
+                    if (moves[i].x == board.LastAction.x && moves[i].y == board.LastAction.y)
+                    {
+                        root = root.children[i];
+                        found = true;
+                        break;
+                    }
+                if (!found)
+                    root = null;
+            }
+            moves = board.GetAllMoves();
+            if (root == null)
+                root = new TreeNode(moves.Length);
+
             for (int i = 0; i < attempts; i++)
                 root.Selection((UltimateTicTacToe)board.Clone());
             int bestMove = -1;
-            double bestScore = double.PositiveInfinity;
+            double bestScore = double.NegativeInfinity;
             for (int i = 0; i < moves.Length; i++)
             {
-                double score = root.children[i]?.GetScore() ?? double.NaN;
-                if (score < bestScore)
+                double score = root.children[i]?.GetScore(root.total) ?? double.NaN;
+                if (score > bestScore)
                 {
                     bestScore = score;
                     bestMove = i;
                 }
             }
-            return moves[bestMove];
+            Console.WriteLine("MonteCarloDebug: score = {0}/{1}, at [{2}, {3}]", -root.score, root.total, moves[bestMove].x, moves[bestMove].y);
+            root = root.children[bestMove];
+            PlayerMove move = moves[bestMove];
+            board.MakeMove(move.x, move.y);
+            moves = board.GetAllMoves();
+            return move;
         }
         public void MakeMove(BoardProxy board)
         {
+
             PlayerMove move = MonteCarlo(board.GetBoardCopy(), maxAttempts);
-            //Console.WriteLine("MonteCarloDebug: score = {0}, at [{1}, {2}]", move.score, move.x, move.y);
             board.MakeMove(move.x, move.y);
         }
     }

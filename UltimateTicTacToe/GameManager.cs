@@ -18,20 +18,26 @@ namespace UltimateTicTacToe
             {
                 IStrategy currentStrategy = firstPlayer, otherStrategy = secondPlayer;
                 BoardProxy currentProxy = new BoardProxy(Board, Players.First), otherProxy = new BoardProxy(Board, Players.Second);
+                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                Started?.Invoke(Board);
                 while (!Board.IsFinished)
                 {
                     Players lastMove = Board.PlayerMove;
+                    sw.Restart();
                     currentStrategy.MakeMove(currentProxy);
+                    Console.WriteLine("Elapsed: {0}", sw.ElapsedMilliseconds);
                     if (lastMove == Board.PlayerMove)
                         throw new Exception("Strategy make incorrect move");
                     Utils.Swap(ref currentStrategy, ref otherStrategy);
                     Utils.Swap(ref currentProxy, ref otherProxy);
-                    MoveDone?.Invoke();
+                    MoveDone?.Invoke(Board);
                 }
-                Finished?.Invoke();
+                Finished?.Invoke(Board);
             });
         }
-        public event Action MoveDone;
-        public event Action Finished;
+        public delegate void BoardEvent(UltimateTicTacToe board);
+        public event BoardEvent Started;
+        public event BoardEvent MoveDone;
+        public event BoardEvent Finished;
     }
 }
