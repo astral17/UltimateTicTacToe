@@ -16,6 +16,15 @@ namespace UltimateTicTacToe.Tests
             gm.StartGame(new Strategies.RandomStrategy(), new Strategies.MonteCarloStrategy(500)).Wait();
             Assert.AreEqual(Players.Second, gm.Board.Winner, "MonteCarlo must win Random");
         }
+        //[TestMethod, Timeout(10000)]
+        //public void MonteCarloWinAlphaBeta1()
+        //{
+        //    GameManager gm = new GameManager();
+        //    gm.StartGame(new Strategies.MonteCarloStrategy(3000), new Strategies.AlphaBetaStrategy(2)).Wait();
+        //    Assert.AreEqual(Players.First, gm.Board.Winner, "MonteCarlo must win AlphaBeta");
+        //    gm.StartGame(new Strategies.AlphaBetaStrategy(2), new Strategies.MonteCarloStrategy(3000)).Wait();
+        //    Assert.AreEqual(Players.Second, gm.Board.Winner, "MonteCarlo must win AlphaBeta");
+        //}
         [TestMethod, Timeout(200)]
         public void MonteCarloSpeed1()
         {

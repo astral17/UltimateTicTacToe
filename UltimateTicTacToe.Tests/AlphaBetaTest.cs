@@ -38,5 +38,13 @@ namespace UltimateTicTacToe.Tests
             strategy.MakeMove(new BoardProxy(board, Players.First));
             Assert.AreEqual(Players.Second, board.PlayerMove, "Strategy must make move");
         }
+        [TestMethod, Timeout(10000)] // 8.3s -> 7.6s
+        public void AlphaBetaSpeed4()
+        {
+            UltimateTicTacToe board = new UltimateTicTacToe();
+            IStrategy strategy = new Strategies.AlphaBetaStrategy(10);
+            strategy.MakeMove(new BoardProxy(board, Players.First));
+            Assert.AreEqual(Players.Second, board.PlayerMove, "Strategy must make move");
+        }
     }
 }

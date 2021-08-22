@@ -14,15 +14,15 @@ namespace UltimateTicTacToe
     public partial class GameForm : Form
     {
         private readonly GameManager gameManager = new GameManager();
-        public Strategies.HumanStrategy human = new Strategies.HumanStrategy();
+        private Strategies.HumanStrategy human = new Strategies.HumanStrategy();
         public GameForm()
         {
             InitializeComponent();
             DoubleBuffered = true;
             //gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), new Strategies.AlphaBetaStrategy(8));
             //gameManager.StartGame(new Strategies.AlphaBetaStrategy(6), new Strategies.MonteCarloStrategy(30000));
-            gameManager.StartGame(new Strategies.MonteCarloStrategy(30000), new Strategies.AlphaBetaStrategy(5));
-            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), human);
+            //gameManager.StartGame(new Strategies.MonteCarloStrategy(30000), new Strategies.AlphaBetaStrategy(5));
+            gameManager.StartGame(new Strategies.AlphaBetaStrategy(10), human);
             //gameManager.StartGame(human, new Strategies.AlphaBetaStrategy(12));
             //gameManager.StartGame(human, human);
             //gameManager.StartGame(new Strategies.MonteCarloStrategy(1000), human);
@@ -42,7 +42,7 @@ namespace UltimateTicTacToe
         private Players winner = Players.None;
         private Players playerMove = Players.None;
         private PlayerMove lastAction = new PlayerMove();
-        private PlayerMove[] moves = new PlayerMove[0];
+        private PlayerMove[] moves = Array.Empty<PlayerMove>();
         private Players[,] cells = new Players[UltimateTicTacToe.BoardSize, UltimateTicTacToe.BoardSize];
         private Players[,] winners = new Players[UltimateTicTacToe.LocalBoardCount, UltimateTicTacToe.LocalBoardCount];
         private void OnBoardEvent(UltimateTicTacToe board)
@@ -64,8 +64,8 @@ namespace UltimateTicTacToe
                     winners[i, j] = board.GetOwner(i, j);
         }
 
-        private const int CellSize = 35;
-        private const int CellBorder = 5;
+        private const int CellSize = 32;
+        private const int CellBorder = 4;
 
         private readonly Font winnerFont = new Font("Arial", 50);
         private readonly Pen winnerPen = new Pen(Brushes.Black, 3);
@@ -83,12 +83,12 @@ namespace UltimateTicTacToe
         private readonly Pen thinLine = Pens.Black;
         private readonly Pen fatLine = new Pen(Brushes.Black, 3);
 
-        private void DrawX(Graphics g, int x, int y, Pen pen, int cellSize = CellSize, int cellBorder = CellBorder)
+        private static void DrawX(Graphics g, int x, int y, Pen pen, int cellSize = CellSize, int cellBorder = CellBorder)
         {
             g.DrawLine(pen, x * cellSize + cellBorder, y * cellSize + cellBorder, x * cellSize + cellSize - cellBorder, y * cellSize + cellSize - cellBorder);
             g.DrawLine(pen, x * cellSize + cellSize - cellBorder, y * cellSize + cellBorder, x * cellSize + cellBorder, y * cellSize + cellSize - cellBorder);
         }
-        private void DrawO(Graphics g, int x, int y, Pen pen, int cellSize = CellSize, int cellBorder = CellBorder)
+        private static void DrawO(Graphics g, int x, int y, Pen pen, int cellSize = CellSize, int cellBorder = CellBorder)
         {
             g.DrawEllipse(pen, x * cellSize + cellBorder, y * cellSize + cellBorder, cellSize - 2 * cellBorder, cellSize - 2 * cellBorder);
         }
@@ -101,8 +101,8 @@ namespace UltimateTicTacToe
             }
             for (int i = 0; i <= UltimateTicTacToe.BoardSize; i++)
             {
-                e.Graphics.DrawLine(i % Board.LocalBoardSize == 0 ? fatLine : thinLine, 0, i * CellSize, UltimateTicTacToe.BoardSize * CellSize, i * CellSize);
-                e.Graphics.DrawLine(i % Board.LocalBoardSize == 0 ? fatLine : thinLine, i * CellSize, 0, i * CellSize, UltimateTicTacToe.BoardSize * CellSize);
+                e.Graphics.DrawLine(i % Board.LocalBoardSize == 0 ? fatLine : thinLine, 0, i * CellSize, UltimateTicTacToe.BoardSize * CellSize + 1, i * CellSize);
+                e.Graphics.DrawLine(i % Board.LocalBoardSize == 0 ? fatLine : thinLine, i * CellSize, 0, i * CellSize, UltimateTicTacToe.BoardSize * CellSize + 1);
             }
             for (int i = 0; i < UltimateTicTacToe.BoardSize; i++)
                 for (int j = 0; j < UltimateTicTacToe.BoardSize; j++)
@@ -147,7 +147,7 @@ namespace UltimateTicTacToe
             }
         }
 
-        private GraphicsPath GetStringPath(string s, float dpi, RectangleF rect, Font font, StringFormat format)
+        private static GraphicsPath GetStringPath(string s, float dpi, RectangleF rect, Font font, StringFormat format)
         {
             GraphicsPath path = new GraphicsPath();
             float emSize = dpi * font.SizeInPoints / 72;
