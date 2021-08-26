@@ -82,14 +82,14 @@ namespace UltimateTicTacToe.Strategies
             this.maxAttempts = maxAttempts;
         }
         TreeNode root = null;
-        PlayerMove[] moves = new PlayerMove[0];
-        protected PlayerMove MonteCarlo(UltimateTicTacToe board, int attempts)
+        int[] moves = new int[0];
+        protected int MonteCarlo(UltimateTicTacToe board, int attempts)
         {
             if (root != null) // TODO: Fix reuse
             {
                 bool found = false;
                 for (int i = 0; i < moves.Length; i++)
-                    if (moves[i].x == board.LastAction.x && moves[i].y == board.LastAction.y)
+                    if (moves[i] == board.LastMove)
                     {
                         root = root.children[i];
                         found = true;
@@ -98,7 +98,7 @@ namespace UltimateTicTacToe.Strategies
                 if (!found)
                     root = null;
             }
-            moves = board.GetAllMoves();
+            moves = board.GetAllMovesId();
             if (root == null)
                 root = new TreeNode(moves.Length);
 
@@ -115,18 +115,18 @@ namespace UltimateTicTacToe.Strategies
                     bestMove = i;
                 }
             }
-            Console.WriteLine("MonteCarloDebug: score = {0}/{1}, at [{2}, {3}]", -root.score, root.total, moves[bestMove].x, moves[bestMove].y);
+            //Console.WriteLine("MonteCarloDebug: score = {0}/{1}, at [{2}, {3}]", -root.score, root.total, moves[bestMove].x, moves[bestMove].y);
             root = root.children[bestMove];
-            PlayerMove move = moves[bestMove];
-            board.MakeMove(move.x, move.y);
-            moves = board.GetAllMoves();
+            int move = moves[bestMove];
+            board.MakeMove(move);
+            moves = board.GetAllMovesId();
             return move;
         }
         public void MakeMove(BoardProxy board)
         {
 
-            PlayerMove move = MonteCarlo(board.GetBoardCopy(), maxAttempts);
-            board.MakeMove(move.x, move.y);
+            int move = MonteCarlo(board.GetBoardCopy(), maxAttempts);
+            board.MakeMove(move);
         }
     }
 }

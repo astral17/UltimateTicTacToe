@@ -16,7 +16,7 @@ namespace UltimateTicTacToe.Tests
             Players[,] winners = new Players[UltimateTicTacToe.LocalBoardCount, UltimateTicTacToe.LocalBoardCount];
             Assert.IsTrue(Utils.CompareWinnersWithArray(board, winners), "None local winners");
 
-            Assert.AreEqual(board.ActiveBoard, new ActiveBoard { all = true, x = 0, y = 0 });
+            Assert.AreEqual(board.ActiveBoard, new ActiveBoard { all = true, id = 0 });
             Assert.AreEqual(board.IsFinished, false, "Game couldn't start finished");
             Assert.AreEqual(board.Winner, Players.None, "Game couldn't start with winner");
             Assert.AreEqual(board.PlayerMove, Players.First, "Game must start with first player");
@@ -137,7 +137,7 @@ namespace UltimateTicTacToe.Tests
             cells[0, 0] = Players.First;
             Assert.IsTrue(board.MakeMove(Players.First, 0, 0), "First move could be placed everywhere");
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell should be updated");
-            Assert.AreEqual(new ActiveBoard { all = false, x = 0, y = 0 }, board.ActiveBoard, "Board 0, 0");
+            Assert.AreEqual(new ActiveBoard { all = false, id = 0 }, board.ActiveBoard, "Board 0, 0");
             
             Assert.IsFalse(board.MakeMove(Players.First, 1, 0), "First player couldn't play during opponent's move");
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
@@ -151,7 +151,7 @@ namespace UltimateTicTacToe.Tests
             cells[1, 1] = Players.Second;
             Assert.IsTrue(board.MakeMove(Players.Second, 1, 1), "Valid move");
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
-            Assert.AreEqual(new ActiveBoard { all = false, x = 1, y = 1 }, board.ActiveBoard, "Board 1, 1");
+            Assert.AreEqual(new ActiveBoard { all = false, id = 4 }, board.ActiveBoard, "Board 1, 1");
         }
         [TestMethod]
         public void BoardMove2()
@@ -187,7 +187,7 @@ namespace UltimateTicTacToe.Tests
             Assert.IsTrue(board.MakeMove(Players.First, 0, 0), "First move could be placed everywhere");
             cells[0, 0] = Players.First;
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell should be updated");
-            Assert.AreEqual(new ActiveBoard { all = false, x = 0, y = 0 }, board.ActiveBoard, "Board 0, 0");
+            Assert.AreEqual(new ActiveBoard { all = false, id = 0 }, board.ActiveBoard, "Board 0, 0");
 
             Assert.IsFalse(board.MakeMove(Players.First, 1, 0), "First player couldn't play during opponent's move");
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cells should be stay unchanged");
@@ -204,7 +204,7 @@ namespace UltimateTicTacToe.Tests
             cells[1, 1] = Players.Second;
             Assert.IsTrue(board.MakeMove(Players.Second, 1, 1), "Valid move");
             Assert.IsTrue(Utils.CompareBoardWithArray(board, cells), "Cell should be updated");
-            Assert.AreEqual(new ActiveBoard { all = false, x = 1, y = 1 }, board.ActiveBoard, "Board 1, 1");
+            Assert.AreEqual(new ActiveBoard { all = false, id = 4 }, board.ActiveBoard, "Board 1, 1");
         }
         [TestMethod]
         public void BoardUndo2()

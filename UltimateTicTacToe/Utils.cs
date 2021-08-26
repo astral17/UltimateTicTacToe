@@ -24,6 +24,13 @@ namespace UltimateTicTacToe
             int index = random.Next(list.Count);
             return list[index];
         }
+        public static T[] SubArray<T>(this T[] data, int index, int length)
+        {
+            T[] result = new T[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
+        }
+
         public static void Swap<T>(ref T first, ref T second)
         {
             T tmp = first;

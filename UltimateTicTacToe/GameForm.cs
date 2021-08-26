@@ -20,10 +20,10 @@ namespace UltimateTicTacToe
             InitializeComponent();
             DoubleBuffered = true;
             //gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), new Strategies.AlphaBetaStrategy(8));
-            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(6), new Strategies.MonteCarloStrategy(30000));
+            gameManager.StartGame(new Strategies.AlphaBetaStrategy(10), new Strategies.MonteCarloStrategy(30000));
             //gameManager.StartGame(new Strategies.MonteCarloStrategy(30000), new Strategies.AlphaBetaStrategy(5));
-            gameManager.StartGame(new Strategies.AlphaBetaStrategy(10), human);
-            //gameManager.StartGame(human, new Strategies.AlphaBetaStrategy(12));
+            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(10), human);
+            //gameManager.StartGame(human, new Strategies.AlphaBetaStrategy(10));
             //gameManager.StartGame(human, human);
             //gameManager.StartGame(new Strategies.MonteCarloStrategy(1000), human);
             BoardClick += human.SetMove;
@@ -101,8 +101,8 @@ namespace UltimateTicTacToe
             }
             for (int i = 0; i <= UltimateTicTacToe.BoardSize; i++)
             {
-                e.Graphics.DrawLine(i % Board.LocalBoardSize == 0 ? fatLine : thinLine, 0, i * CellSize, UltimateTicTacToe.BoardSize * CellSize + 1, i * CellSize);
-                e.Graphics.DrawLine(i % Board.LocalBoardSize == 0 ? fatLine : thinLine, i * CellSize, 0, i * CellSize, UltimateTicTacToe.BoardSize * CellSize + 1);
+                e.Graphics.DrawLine(i % UltimateTicTacToe.LocalBoardSize == 0 ? fatLine : thinLine, 0, i * CellSize, UltimateTicTacToe.BoardSize * CellSize + 1, i * CellSize);
+                e.Graphics.DrawLine(i % UltimateTicTacToe.LocalBoardSize == 0 ? fatLine : thinLine, i * CellSize, 0, i * CellSize, UltimateTicTacToe.BoardSize * CellSize + 1);
             }
             for (int i = 0; i < UltimateTicTacToe.BoardSize; i++)
                 for (int j = 0; j < UltimateTicTacToe.BoardSize; j++)
@@ -116,9 +116,9 @@ namespace UltimateTicTacToe
                 for (int j = 0; j < UltimateTicTacToe.LocalBoardCount; j++)
                 {
                     if (winners[i, j] == Players.First)
-                        DrawX(e.Graphics, i, j, winLineX, CellSize * Board.LocalBoardSize, CellBorder * Board.LocalBoardSize);
+                        DrawX(e.Graphics, i, j, winLineX, CellSize * UltimateTicTacToe.LocalBoardSize, CellBorder * UltimateTicTacToe.LocalBoardSize);
                     else if (winners[i, j] == Players.Second)
-                        DrawO(e.Graphics, i, j, winLineO, CellSize * Board.LocalBoardSize, CellBorder * Board.LocalBoardSize);
+                        DrawO(e.Graphics, i, j, winLineO, CellSize * UltimateTicTacToe.LocalBoardSize, CellBorder * UltimateTicTacToe.LocalBoardSize);
                 }
             if (winner != Players.None)
             {

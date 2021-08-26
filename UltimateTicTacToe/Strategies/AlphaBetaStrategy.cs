@@ -10,16 +10,16 @@ namespace UltimateTicTacToe.Strategies
     {
         protected struct StrategyMove
         {
-            public int x, y, score;
+            public int id, score;
             public StrategyMove(int score)
             {
                 this.score = score;
-                x = y = -1;
+                id = -1;
             }
         }
 
         protected readonly int maxDepth;
-        public AlphaBetaStrategy(int maxDepth = 5)
+        public AlphaBetaStrategy(int maxDepth = 6)
         {
             this.maxDepth = maxDepth;
         }
@@ -37,35 +37,34 @@ namespace UltimateTicTacToe.Strategies
                         lineScore[cur << 1] = -scorePerCell[i + j + k];
                     }
         }
-        protected virtual int GetBoardScore(Board board, Players player)
+        protected virtual int GetBoardScore(Players[] board, Players player)
         {
-            int score = 0;
-            int line;
+            int score = 0, line;
             // Vertical
-            for (int i = 0; i < Board.LocalBoardSize; i++)
+            for (int i = 0; i < 3; i++)
             {
                 line = 0;
-                for (int j = 0; j < Board.LocalBoardSize; j++)
-                    line = (line << 2) + (int)board.GetOwner(i, j);
+                for (int j = i; j < 9; j += 3)
+                    line = (line << 2) + (int)board[j];
                 score += lineScore[line];
             }
             // Horizontal
-            for (int j = 0; j < Board.LocalBoardSize; j++)
+            for (int i = 0; i < 9; i += 3)
             {
                 line = 0;
-                for (int i = 0; i < Board.LocalBoardSize; i++)
-                    line = (line << 2) + (int)board.GetOwner(i, j);
+                for (int j = 0; j < 3; j++)
+                    line = (line << 2) + (int)board[i + j];
                 score += lineScore[line];
             }
             // Main Diagonal
             line = 0;
-            for (int i = 0; i < Board.LocalBoardSize; i++)
-                line = (line << 2) + (int)board.GetOwner(i, i);
+            for (int i = 0; i < 9; i += 4)
+                line = (line << 2) + (int)board[i];
             score += lineScore[line];
             // Side Diagonal
             line = 0;
-            for (int i = 0; i < Board.LocalBoardSize; i++)
-                line = (line << 2) + (int)board.GetOwner(Board.LocalBoardSize - 1 - i, i);
+            for (int i = 2; i < 8; i += 2)
+                line = (line << 2) + (int)board[i];
             score += lineScore[line];
             if (player == Players.Second)
                 score *= -1;
@@ -78,13 +77,12 @@ namespace UltimateTicTacToe.Strategies
             if (board.Winner == board.PlayerMove.GetOpponent())
                 return -100000;
             Players player = board.PlayerMove;
-            int score = GetBoardScore(board, player) * 100;
+            int score = GetBoardScore(board.GetRawWinners(), player) * 100;
             for (int x = 0; x < UltimateTicTacToe.LocalBoardCount; x++)
                 for (int y = 0; y < UltimateTicTacToe.LocalBoardCount; y++)
                 {
-                    TicTacToe smallBoard = board.GetBoard(x, y);
-                    if (smallBoard.Winner == Players.None)
-                        score += GetBoardScore(smallBoard, player);
+                    if (board.GetOwner(x, y) == Players.None)
+                        score += GetBoardScore(board.GetRawBoard(x, y), player);
                 }
             return score;
         }
@@ -93,14 +91,13 @@ namespace UltimateTicTacToe.Strategies
         {
             if (depth == 0 || board.IsFinished)
                 return new StrategyMove(GetScore(board));
-            PlayerMove[] moves = board.GetAllMoves(); // TODO: Sort by score
+            int[] moves = board.GetAllMovesId(); // TODO: Sort by score
             moves.Shuffle();
             StrategyMove bestMove = new StrategyMove(-int.MaxValue), curMove;
-            foreach (PlayerMove move in moves)
+            foreach (int move in moves)
             {
-                board.MakeMove(move.x, move.y); // TODO: Check is moved
-                curMove.x = move.x;
-                curMove.y = move.y;
+                board.MakeMove(move); // TODO: Check is moved
+                curMove.id = move;
                 curMove.score = -AlphaBeta(board, depth - 1, -beta, -alpha).score;
                 board.Undo();
                 if (bestMove.score < curMove.score)
@@ -114,8 +111,9 @@ namespace UltimateTicTacToe.Strategies
         public void MakeMove(BoardProxy board)
         {
             StrategyMove move = AlphaBeta(board.GetBoardCopy(), maxDepth);
-            Console.WriteLine("AlphaBetaDebug: score = {0}, at [{1}, {2}]", move.score, move.x, move.y);
-            board.MakeMove(move.x, move.y);
+            PlayerMove tmp = UltimateTicTacToe.ConvertIdToPlayerMove(move.id);
+            Console.WriteLine("AlphaBetaDebug: score = {0}, at [{1}, {2}]", move.score, tmp.x, tmp.y);
+            board.MakeMove(move.id);
         }
     }
 }

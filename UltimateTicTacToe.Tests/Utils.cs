@@ -17,14 +17,14 @@ namespace UltimateTicTacToe.Tests
                         return false;
             return true;
         }
-        public static bool CompareMiniBoardWithArray(TicTacToe board, Players[,] cells)
-        {
-            for (int i = 0; i < TicTacToe.LocalBoardSize; i++)
-                for (int j = 0; j < TicTacToe.LocalBoardSize; j++)
-                    if (board[i, j] != cells[i, j])
-                        return false;
-            return true;
-        }
+        //public static bool CompareMiniBoardWithArray(TicTacToe board, Players[,] cells)
+        //{
+        //    for (int i = 0; i < TicTacToe.LocalBoardSize; i++)
+        //        for (int j = 0; j < TicTacToe.LocalBoardSize; j++)
+        //            if (board[i, j] != cells[i, j])
+        //                return false;
+        //    return true;
+        //}
         public static bool CompareWinnersWithArray(UltimateTicTacToe board, Players[,] cells)
         {
             for (int i = 0; i < UltimateTicTacToe.LocalBoardCount; i++)
@@ -58,7 +58,7 @@ namespace UltimateTicTacToe.Tests
             return true;
         }
 
-        public static Players MakeMoves(Board board, PlayerMove[] moves, Players player)
+        public static Players MakeMoves(UltimateTicTacToe board, PlayerMove[] moves, Players player)
         {
             foreach (var move in moves)
             {

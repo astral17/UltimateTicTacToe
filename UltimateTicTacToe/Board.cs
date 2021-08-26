@@ -22,7 +22,7 @@ namespace UltimateTicTacToe
     }
     public struct ActiveBoard
     {
-        public int x, y;
+        public int id;
         public bool all;
     }
     public struct PlayerMove : IComparable<PlayerMove>
@@ -45,193 +45,235 @@ namespace UltimateTicTacToe
             return x.CompareTo(other.x);
         }
     }
-    public abstract class Board : ICloneable
+    
+    public class UltimateTicTacToe : ICloneable
     {
         public const int LocalBoardSize = 3;
-        public Players Winner { get; set; }
-        public abstract Players this[int x, int y] { get; set; }
-        public abstract Players GetOwner(int x, int y); // TODO: Rename
-        //public abstract bool IsAvailable(Players player, int x, int y);
-        public abstract bool MakeMove(Players player, int x, int y);
-        public abstract PlayerMove[] GetAllMoves();
-        protected Players GetResult() // TODO: Rename
-        {
-            if (Winner != Players.None) // TODO: Remake cache
-                return Winner;
-            Players result;
-            // Vertical
-            for (int i = 0; i < LocalBoardSize; i++)
-            {
-                result = GetOwner(i, 0);
-                for (int j = 1; j < LocalBoardSize; j++)
-                    if (GetOwner(i, j) != result)
-                        result = Players.None;
-                if (result != Players.None)
-                    return result;
-            }
-            // Horizontal
-            for (int j = 0; j < LocalBoardSize; j++)
-            {
-                result = GetOwner(0, j);
-                for (int i = 1; i < LocalBoardSize; i++)
-                    if (GetOwner(i, j) != result)
-                        result = Players.None;
-                if (result != Players.None)
-                    return result;
-            }
-            // Main Diagonal
-            result = GetOwner(0, 0);
-            for (int i = 1; i < LocalBoardSize; i++)
-                if (GetOwner(i, i) != result)
-                    result = Players.None;
-            if (result != Players.None)
-                return result;
-            // Side Diagonal
-            result = GetOwner(LocalBoardSize - 1, 0);
-            for (int i = 1; i < LocalBoardSize; i++)
-                if (GetOwner(LocalBoardSize - 1 - i, i) != result)
-                    result = Players.None;
-            if (result != Players.None)
-                return result;
-            // Draw Check
-            for (int j = 0; j < LocalBoardSize; j++)
-                for (int i = 0; i < LocalBoardSize; i++)
-                    if (GetOwner(i, j) == Players.None)
-                        return Players.None;
-            return Players.Draw;
-        }
-        public abstract object Clone();
-        public bool IsFinished => Winner != Players.None;
-    }
-    public class TicTacToe : Board
-    {
-        private Players[,] board = new Players[LocalBoardSize, LocalBoardSize];
-        public override Players this[int x, int y]
-        { 
-            get => board[x, y];
-            set // Only outer usage
-            {
-                board[x, y] = value;
-                Winner = Players.None;
-                Winner = GetResult();
-            }
-        }
-        public override Players GetOwner(int x, int y) => board[x, y];
-        public override PlayerMove[] GetAllMoves()
-        {
-            List<PlayerMove> result = new List<PlayerMove>();
-            if (!IsFinished)
-                for (int i = 0; i< LocalBoardSize; i++)
-                    for (int j = 0; j< LocalBoardSize; j++)
-                        if (this[i, j] == Players.None)
-                            result.Add(new PlayerMove(i, j));
-            return result.ToArray();
-        }
-        public override bool MakeMove(Players player, int x, int y)
-        {
-            if (Winner != Players.None || board[x, y] != Players.None)
-                return false;
-            board[x, y] = player;
-            Winner = GetResult();
-            return true;
-        }
-
-        public override object Clone()
-        {
-            TicTacToe result = (TicTacToe)MemberwiseClone();
-            result.board = (Players[,])board.Clone();
-            return result;
-        }
-    }
-    public class UltimateTicTacToe : Board
-    {
         public const int BoardSize = LocalBoardCount * LocalBoardSize;
         public const int LocalBoardCount = LocalBoardSize;
 
-        private TicTacToe[,] boards = new TicTacToe[LocalBoardCount, LocalBoardCount];
-        public Players PlayerMove { get; protected set; } = Players.First; // Move to UltimateTicTacToe
-        public override Players this[int x, int y]
+        private Players[] board = new Players[BoardSize * BoardSize];
+        private Players[] winners = new Players[LocalBoardSize * LocalBoardSize];
+        public Players PlayerMove { get; protected set; } = Players.First;
+        public Players Winner { get; set; }
+        public bool IsFinished => Winner != Players.None;
+        public Players this[int x, int y]
         {
-            get => boards[x / LocalBoardSize, y / LocalBoardSize][x % LocalBoardSize, y % LocalBoardSize];
+            get
+            {
+                return board[ConvertPlayerMoveToId(x, y)];
+            }
             set // Only outer usage
             {
-                boards[x / LocalBoardSize, y / LocalBoardSize][x % LocalBoardSize, y % LocalBoardSize] = value;
+                board[ConvertPlayerMoveToId(x, y)] = value;
                 Winner = Players.None;
-                Winner = GetResult();
+                Winner = GetResult(winners);
             }
         }
-        public override Players GetOwner(int x, int y) => boards[x, y].Winner;
-        public TicTacToe GetBoard(int x, int y) => boards[x, y];
+
+        private static readonly int[] lineScore = new int[64];
+        static UltimateTicTacToe()
+        {
+            int[] scorePerCell = new int[] { 0, 1, 10, 100 };
+            for (int i = 0; i < 2; i++)
+                for (int j = 0; j < 2; j++)
+                    for (int k = 0; k < 2; k++)
+                    {
+                        int cur = (i << 4) + (j << 2) + k;
+                        lineScore[cur] = scorePerCell[i + j + k];
+                        lineScore[cur << 1] = -scorePerCell[i + j + k];
+                    }
+        }
+        private const int lineFirst  = 0b010101;
+        private const int lineSecond = 0b101010;
+        protected static Players GetResult(Players[] board)
+        {
+            int line;
+            // Vertical
+            for (int i = 0; i < 3; i++)
+            {
+                line = 0;
+                for (int j = i; j < 9; j += 3)
+                    line = (line << 2) + (int)board[j];
+                if (line == lineFirst)
+                    return Players.First;
+                if (line == lineSecond)
+                    return Players.Second;
+            }
+            // Horizontal
+            for (int i = 0; i < 9; i += 3)
+            {
+                line = 0;
+                for (int j = 0; j < 3; j++)
+                    line = (line << 2) + (int)board[i + j];
+                if (line == lineFirst)
+                    return Players.First;
+                if (line == lineSecond)
+                    return Players.Second;
+            }
+            // Main Diagonal
+            line = 0;
+            for (int i = 0; i < 9; i += 4)
+                line = (line << 2) + (int)board[i];
+            if (line == lineFirst)
+                return Players.First;
+            if (line == lineSecond)
+                return Players.Second;
+            // Side Diagonal
+            line = 0;
+            for (int i = 2; i < 8; i += 2)
+                line = (line << 2) + (int)board[i];
+            if (line == lineFirst)
+                return Players.First;
+            if (line == lineSecond)
+                return Players.Second;
+            // Draw Check
+            for (int i = 0; i < 9; i++)
+                if (board[i] == Players.None)
+                    return Players.None;
+            return Players.Draw;
+        }
+
+
+        public Players GetOwner(int x, int y) => winners[x * 3 + y];
+        public Players[] GetRawBoard(int id)
+        {
+            return board.SubArray(id * 9, 9);
+        }
+        public Players[] GetRawBoard(int x, int y)
+        {
+            return GetRawBoard(ConvertPlayerMoveToId(x, y) / 9);
+        }
+        public Players[] GetRawWinners() // TODO: Property?, Copy?
+        {
+            return winners;
+        }
+        // bidirectional convert
+        private static void CoordConvert(int a, int b, out int c, out int d)
+        {
+            c = (a / 3) * 3 + b / 3;
+            d = (a % 3) * 3 + b % 3;
+        }
+        public static PlayerMove ConvertIdToPlayerMove(int id)
+        {
+            CoordConvert(id / 9, id % 9, out int x, out int y);
+            return new PlayerMove(x, y);
+        }
+        public static int ConvertPlayerMoveToId(int x, int y)
+        {
+            CoordConvert(x, y, out int a, out int b);
+            return a * 9 + b;
+        }
+        public static int ConvertPlayerMoveToId(PlayerMove move)
+        {
+            return ConvertPlayerMoveToId(move.x, move.y);
+        }
         public UltimateTicTacToe()
         {
-            for (int i = 0; i < LocalBoardCount; i++)
-                for (int j = 0; j < LocalBoardCount; j++)
-                    boards[i, j] = new TicTacToe();
+            //for (int i = 0; i < LocalBoardCount; i++)
+            //    for (int j = 0; j < LocalBoardCount; j++)
+            //        boards[i, j] = new TicTacToe();
         }
         public ActiveBoard ActiveBoard { get; private set; } = new ActiveBoard { all = true };
-        public override bool MakeMove(Players player, int x, int y)
+        public bool MakeMove(int id)
         {
             if (Winner != Players.None)
                 return false;
-            if (player != PlayerMove)
-                return false;
             // Move in available board
-            if (!ActiveBoard.all && (x / LocalBoardSize != ActiveBoard.x || y / LocalBoardSize != ActiveBoard.y))
+            int bid = id / 9;
+            if (!ActiveBoard.all && bid != ActiveBoard.id)
                 return false;
             // Is possible move to cell
-            if (!boards[x / LocalBoardSize, y / LocalBoardSize].MakeMove(player, x % LocalBoardSize, y % LocalBoardSize))
+            if (winners[bid] != Players.None || board[id] != Players.None)
                 return false;
+            board[id] = PlayerMove;
+            winners[bid] = GetResult(board.SubArray(bid * 9, 9));
             history.Push(new HistoryMove
             {
-                x = x,
-                y = y,
+                id = id,
                 all = ActiveBoard.all
             });
-
+            int sid = id % 9;
             ActiveBoard = new ActiveBoard
             {
-                x = x % LocalBoardSize,
-                y = y % LocalBoardSize,
-                all = boards[x % LocalBoardSize, y % LocalBoardSize].Winner != Players.None // TODO: Rule Set
+                id = sid,
+                all = winners[sid] != Players.None // TODO: Rule Set
             };
-            LastAction = new PlayerMove(x, y);
+            LastMove = id;
             PlayerMove = PlayerMove.GetOpponent();
-            Winner = GetResult();
+            Winner = GetResult(winners);
             return true;
         }
-        public virtual bool MakeMove(int x, int y) => MakeMove(PlayerMove, x, y);
+        public bool MakeMove(Players player, int id)
+        {
+            if (player != PlayerMove)
+                return false;
+            return MakeMove(id);
+        }
+        public bool MakeMove(Players player, int x, int y)
+        {
+            return MakeMove(player, ConvertPlayerMoveToId(x, y));
+        }
+        public bool MakeMove(int x, int y)
+        {
+            return MakeMove(ConvertPlayerMoveToId(x, y));
+        }
         private struct HistoryMove
         {
-            public int x, y;
+            public int id;
             public bool all;
         }
         private Stack<HistoryMove> history = new Stack<HistoryMove>();
         public void Undo()
         {
             HistoryMove move = history.Pop();
-            boards[move.x / LocalBoardSize, move.y / LocalBoardSize][move.x % LocalBoardSize, move.y % LocalBoardSize] = Players.None;
+            board[move.id] = Players.None;
+            winners[move.id / 9] = Players.None;
             Winner = Players.None;
             if (history.Count > 0)
-                LastAction = new PlayerMove(history.Peek().x, history.Peek().y);
+                LastMove = history.Peek().id;
             PlayerMove = PlayerMove.GetOpponent();
             ActiveBoard = new ActiveBoard
             {
-                x = move.x / LocalBoardSize,
-                y = move.y / LocalBoardSize,
+                id = move.id / 9,
                 all = move.all
             };
         }
-
-        public override PlayerMove[] GetAllMoves() // TODO: Yield?
+        public PlayerMove[] GetAllMoves() // TODO: Yield?
         {
-            List<PlayerMove> result = new List<PlayerMove>();
+            List<int> result = new List<int>();
             if (!IsFinished)
                 if (ActiveBoard.all)
-                    for (int i = 0; i < LocalBoardCount; i++)
-                        for (int j = 0; j < LocalBoardCount; j++)
-                            result.AddRange(Array.ConvertAll(boards[i, j].GetAllMoves(), p => p.Add(i * LocalBoardSize, j * LocalBoardSize)));
+                {
+                    for (int i = 0; i < 9; i++)
+                        if (winners[i] == Players.None)
+                            for (int j = 0; j < 9; j++)
+                                if (board[i * 9 + j] == Players.None)
+                                    result.Add(i * 9 + j);
+                }
                 else
-                    result.AddRange(Array.ConvertAll(boards[ActiveBoard.x, ActiveBoard.y].GetAllMoves(), p => p.Add(ActiveBoard.x * LocalBoardSize, ActiveBoard.y * LocalBoardSize)));
+                    for (int i = 0; i < 9; i++)
+                        if (board[ActiveBoard.id * 9 + i] == Players.None)
+                            result.Add(ActiveBoard.id * 9 + i);
+            return result.ConvertAll(id => ConvertIdToPlayerMove(id)).ToArray();
+            //return GetAllMovesId().ToList().ConvertAll(id => ConvertIdToPlayerMove(id)).ToArray();
+        }
+        public int[] GetAllMovesId() // TODO: Yield?
+        {
+            List<int> result = new List<int>();
+            if (!IsFinished)
+                if (ActiveBoard.all)
+                {
+                    for (int i = 0; i < 9; i++)
+                        if (winners[i] == Players.None)
+                            for (int j = 0; j < 9; j++)
+                                if (board[i * 9 + j] == Players.None)
+                                    result.Add(i * 9 + j);
+                }
+                else
+                    for (int i = 0; i < 9; i++)
+                        if (board[ActiveBoard.id * 9 + i] == Players.None)
+                            result.Add(ActiveBoard.id * 9 + i);
             return result.ToArray();
         }
         [Obsolete("Debug Only")]
@@ -258,20 +300,30 @@ namespace UltimateTicTacToe
             return builder.ToString();
         }
 
-        public override object Clone()
+        public object Clone()
         {
             UltimateTicTacToe result = (UltimateTicTacToe)MemberwiseClone();
             result.history = new Stack<HistoryMove>(history); // TODO: Clone without history for speed
-            result.boards = new TicTacToe[LocalBoardCount, LocalBoardCount];
-            for (int i = 0; i < LocalBoardCount; i++)
-                for (int j = 0; j < LocalBoardCount; j++)
-                    result.boards[i, j] = (TicTacToe)boards[i, j].Clone();
+            result.board = (Players[])board.Clone();
+            result.winners = (Players[])winners.Clone();
+            //result.boards = new TicTacToe[LocalBoardCount, LocalBoardCount];
+            //for (int i = 0; i < LocalBoardCount; i++)
+            //    for (int j = 0; j < LocalBoardCount; j++)
+            //        result.boards[i, j] = (TicTacToe)boards[i, j].Clone();
             return result;
         }
-        public PlayerMove LastAction { get; private set; } = new PlayerMove();
+        public int LastMove { get; private set; } = -1;
+        public PlayerMove LastAction
+        {
+            get
+            {
+                CoordConvert(LastMove / 9, LastMove % 9, out int x, out int y);
+                return new PlayerMove(x, y);
+            }
+        }
     }
 
-    public class BoardProxy
+    public class BoardProxy // TODO: move in personal file
     {
         public const int LocalBoardSize = 3;
         public const int BoardSize = LocalBoardCount * LocalBoardSize; // TODO: Remove duplicate
@@ -280,6 +332,7 @@ namespace UltimateTicTacToe
         readonly UltimateTicTacToe board;
         public PlayerMove[] GetAllMoves() => board.GetAllMoves();
         //public Players GetOwner(int x, int y) => board.GetOwner(x, y);
+        public bool MakeMove(int id) => board.MakeMove(Player, id); // TODO: throw error if try enemy move
         public bool MakeMove(int x, int y) => board.MakeMove(Player, x, y); // TODO: throw error if try enemy move
         //public StrategyAction LastAction => board.LastAction;
         //public ActiveBoard ActiveBoard => board.ActiveBoard;
