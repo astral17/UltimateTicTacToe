@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 namespace UltimateTicTacToe
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     static class Program
     {
         /// <summary>

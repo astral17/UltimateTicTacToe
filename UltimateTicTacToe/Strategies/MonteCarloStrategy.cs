@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -102,6 +103,10 @@ namespace UltimateTicTacToe.Strategies
             if (root == null)
                 root = new TreeNode(moves.Length);
 
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            //while (sw.ElapsedMilliseconds < 5000)
+            //for (int i = 0; i < 1000; i++)
             for (int i = 0; i < attempts; i++)
                 root.Selection((UltimateTicTacToe)board.Clone());
             int bestMove = -1;

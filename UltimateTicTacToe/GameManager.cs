@@ -30,12 +30,12 @@ namespace UltimateTicTacToe
                         throw new Exception("Strategy make incorrect move");
                     Utils.Swap(ref currentStrategy, ref otherStrategy);
                     Utils.Swap(ref currentProxy, ref otherProxy);
-                    MoveDone?.Invoke(Board);
+                    MoveDone?.Invoke(Board, "Elapsed: " + sw.ElapsedMilliseconds);
                 }
                 Finished?.Invoke(Board);
             });
         }
-        public delegate void BoardEvent(UltimateTicTacToe board);
+        public delegate void BoardEvent(UltimateTicTacToe board, string info = null);
         public event BoardEvent Started;
         public event BoardEvent MoveDone;
         public event BoardEvent Finished;

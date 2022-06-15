@@ -39,33 +39,19 @@ namespace UltimateTicTacToe.Strategies
         }
         protected virtual int GetBoardScore(Players[] board, Players player)
         {
-            int score = 0, line;
+            int score = 0;
             // Vertical
-            for (int i = 0; i < 3; i++)
-            {
-                line = 0;
-                for (int j = i; j < 9; j += 3)
-                    line = (line << 2) + (int)board[j];
-                score += lineScore[line];
-            }
+            score += lineScore[((int)board[0] << 4) + ((int)board[3] << 2) + (int)board[6]];
+            score += lineScore[((int)board[1] << 4) + ((int)board[4] << 2) + (int)board[7]];
+            score += lineScore[((int)board[2] << 4) + ((int)board[5] << 2) + (int)board[8]];
             // Horizontal
-            for (int i = 0; i < 9; i += 3)
-            {
-                line = 0;
-                for (int j = 0; j < 3; j++)
-                    line = (line << 2) + (int)board[i + j];
-                score += lineScore[line];
-            }
+            score += lineScore[((int)board[0] << 4) + ((int)board[1] << 2) + (int)board[2]];
+            score += lineScore[((int)board[3] << 4) + ((int)board[4] << 2) + (int)board[5]];
+            score += lineScore[((int)board[6] << 4) + ((int)board[7] << 2) + (int)board[8]];
             // Main Diagonal
-            line = 0;
-            for (int i = 0; i < 9; i += 4)
-                line = (line << 2) + (int)board[i];
-            score += lineScore[line];
+            score += lineScore[((int)board[0] << 4) + ((int)board[4] << 2) + (int)board[8]];
             // Side Diagonal
-            line = 0;
-            for (int i = 2; i < 8; i += 2)
-                line = (line << 2) + (int)board[i];
-            score += lineScore[line];
+            score += lineScore[((int)board[2] << 4) + ((int)board[4] << 2) + (int)board[6]];
             if (player == Players.Second)
                 score *= -1;
             return score;

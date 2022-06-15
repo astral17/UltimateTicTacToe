@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("UltimateTicTacToe")]
-[assembly: AssemblyCopyright("Copyright © astral17 2021")]
+[assembly: AssemblyCopyright("Copyright © astral17 2021-2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

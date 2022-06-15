@@ -304,6 +304,7 @@ namespace UltimateTicTacToe
         {
             UltimateTicTacToe result = (UltimateTicTacToe)MemberwiseClone();
             result.history = new Stack<HistoryMove>(history); // TODO: Clone without history for speed
+            //result.history = new Stack<HistoryMove>();
             result.board = (Players[])board.Clone();
             result.winners = (Players[])winners.Clone();
             //result.boards = new TicTacToe[LocalBoardCount, LocalBoardCount];

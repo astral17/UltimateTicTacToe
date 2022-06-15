@@ -11,6 +11,7 @@ using System.Windows.Forms;
 
 namespace UltimateTicTacToe
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class GameForm : Form
     {
         private readonly GameManager gameManager = new GameManager();
@@ -20,10 +21,14 @@ namespace UltimateTicTacToe
             InitializeComponent();
             DoubleBuffered = true;
             //gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), new Strategies.AlphaBetaStrategy(8));
-            gameManager.StartGame(new Strategies.AlphaBetaStrategy(10), new Strategies.MonteCarloStrategy(30000));
-            //gameManager.StartGame(new Strategies.MonteCarloStrategy(30000), new Strategies.AlphaBetaStrategy(5));
-            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(10), human);
-            //gameManager.StartGame(human, new Strategies.AlphaBetaStrategy(10));
+            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(10), new Strategies.MonteCarloStrategy(25000));
+            //gameManager.StartGame(new Strategies.MonteCarloStrategy(30000), new Strategies.AlphaBetaStrategy(10));
+            //gameManager.StartGame(new Strategies.BestNodeSearchStrategy(5), new Strategies.AlphaBetaStrategy(5));
+            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(10), new Strategies.AlphaBetaStrategy(8));
+            //gameManager.StartGame(new Strategies.BestNodeSearchStrategy(1), human);
+            //gameManager.StartGame(human, new Strategies.AlphaBetaStrategy(13));
+            //gameManager.StartGame(new Strategies.AlphaBetaStrategy(8), human);
+            gameManager.StartGame(new Strategies.MonteCarloStrategy(30000), human);
             //gameManager.StartGame(human, human);
             //gameManager.StartGame(new Strategies.MonteCarloStrategy(1000), human);
             BoardClick += human.SetMove;
@@ -45,9 +50,11 @@ namespace UltimateTicTacToe
         private PlayerMove[] moves = Array.Empty<PlayerMove>();
         private Players[,] cells = new Players[UltimateTicTacToe.BoardSize, UltimateTicTacToe.BoardSize];
         private Players[,] winners = new Players[UltimateTicTacToe.LocalBoardCount, UltimateTicTacToe.LocalBoardCount];
-        private void OnBoardEvent(UltimateTicTacToe board)
+        private void OnBoardEvent(UltimateTicTacToe board, string info = null)
         {
             FetchBoard(board);
+            if (info != null)
+                infoLabel.Text = info;
             Invoke(new Action(Refresh));
         }
         private void FetchBoard(UltimateTicTacToe board)
